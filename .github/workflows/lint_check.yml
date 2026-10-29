@@ -1,0 +1,42 @@
+name: Lintcheck
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.14"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+          python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4
+
+    - name: Analysing the code with flake8 and mypy strict through uv
+      run: |
+        UV_SKIP_WHEEL_FILENAME_CHECK=1 uv sync
+        UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run flake8 $(git ls-files '*.py') --exclude=.venv/
+        UV_SKIP_WHEEL_FILENAME_CHECK=1 uv run mypy --strict $(git ls-files '*.py')
+
+    # Cache setup
+    - uses: actions/cache@v6
+      if: startsWith(runner.os, 'Linux')
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - uses: actions/cache@v6
+      if: startsWith(runner.os, 'macOS')
+      with:
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
