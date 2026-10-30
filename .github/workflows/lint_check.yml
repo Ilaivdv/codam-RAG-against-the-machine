@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build:
+    name: Lint checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
