@@ -22,4 +22,4 @@ def chunk_file_markdown(path: Path) -> list[Chunk]:
 
 
 def chunk_file_python(path: Path) -> list[Chunk]:
-    ...
+    return []
