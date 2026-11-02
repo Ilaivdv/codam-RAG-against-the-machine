@@ -9,6 +9,8 @@ MYPYFLAGS = --warn-return-any \
 	--disallow-untyped-defs --check-untyped-defs \
 	--disallow-subclassing-any
 
+VLLM_REPO = vllm-0.10.1.zip
+
 run: install
 	@ uv run --quiet $(PY) -m src
 
@@ -17,6 +19,8 @@ debug: install
 
 install:
 	@ uv sync
+	@ mkdir -p data/raw/
+	@ unzip -u $(VLLM_REPO) -d data/raw/
 
 lint:
 	-@ $(FLAKE8)
