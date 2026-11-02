@@ -10,13 +10,12 @@ class Chunk(BaseModel):
 
 
 def chunk_file_markdown(path: Path) -> list[Chunk]:
-
-    # with open(path.absolute()) as f:
     f = path.read_text()
-    splitter = [("#", "Header 1"), ("#", "Header 2")]
-    split = MarkdownHeaderTextSplitter(headers_to_split_on=splitter,
-                                       strip_headers=False)
-    text = split.split_text(f)
+    headers_to_split_on = [("#", "Header 1"), ("##", "Header 2")]
+    splitter = MarkdownHeaderTextSplitter(
+            headers_to_split_on=headers_to_split_on,
+            strip_headers=False)
+    text = splitter.split_text(f)
     print(text)
     return []
 
