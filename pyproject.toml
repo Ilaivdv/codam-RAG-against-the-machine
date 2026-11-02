@@ -1,10 +1,13 @@
 [project]
 name = "RAG-against-the-machine"
+authors = [ { name = "Ilai" } ]
 version = "0.0.1"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
 	"pydantic",
+	"langchain",
+	"bm25s",
 	"fire",
 	"tqdm"
 ]
