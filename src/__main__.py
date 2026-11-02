@@ -1,5 +1,5 @@
-import fire
 from pathlib import Path
+import fire
 
 
 def index(max_chunk_size: int) -> None:
