@@ -1,6 +1,5 @@
 from .index.chunking import chunk_file
 from pathlib import Path
-from glob import glob
 import fire
 
 

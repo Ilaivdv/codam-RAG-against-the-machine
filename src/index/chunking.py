@@ -1,7 +1,7 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 from langchain_core.documents import Document
 from collections.abc import Iterator
-from ..errors import IngestError
+from src.errors import IngestError
 from pydantic import Field
 from pathlib import Path
 
