@@ -1,24 +1,19 @@
-from langchain_text_splitters import MarkdownHeaderTextSplitter
-from pydantic import BaseModel, Field
+from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
+from langchain_core.documents import Document
+from collections.abc import Iterator
+from ..errors import IngestError
+from pydantic import Field
 from pathlib import Path
 
 
-class Chunk(BaseModel):
+class Chunk(Document):
     start_index: int = Field(gt=0)
     end_index: int = Field(gt=0)
-    text: str = Field(max_length=2000)
 
 
-def chunk_file_markdown(path: Path) -> list[Chunk]:
-    f = path.read_text()
-    headers_to_split_on = [("#", "Header 1"), ("##", "Header 2")]
-    splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=headers_to_split_on,
-            strip_headers=False)
-    text = splitter.split_text(f)
-    print(text)
-    return []
-
-
-def chunk_file_python(path: Path) -> list[Chunk]:
+def chunk_file(path: Path) -> list[Chunk]:
+    if not path.exists():
+        raise IngestError(f"ERROR: {path} is not a valid file path")
+    py_list: Iterator[Path] = path.rglob("*.py")
+    # txt_list:
     return []
