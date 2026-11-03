@@ -1,10 +1,14 @@
+from .index.chunking import chunk_file
 from pathlib import Path
+from glob import glob
 import fire
 
 
+_RAW_DATA_PATH = "data/raw/"
+
+
 def index(max_chunk_size: int) -> None:
-    from .index.chunking import chunk_file_markdown
-    chunk_file_markdown(Path("data/raw/vllm-0.10.1/README.md"))
+    chunk_file(Path(_RAW_DATA_PATH))
 
 
 def search(query: str, k: int) -> None:
