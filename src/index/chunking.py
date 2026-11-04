@@ -1,9 +1,8 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
-# from langchain_core.documents import Document
 from src.models import MinimalSource
 from src.errors import ChunkError
+from pydantic import TypeAdapter
 from pathlib import Path
-import pickle
 
 
 _PROCESSED_CHUNKS_PATH = "data/processed/"
@@ -35,8 +34,9 @@ def create_pickled_chunks(path: Path,
          ),
         ])
     Path(_PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
-    with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.pkl", "wb") as f:
-        pickle.dump(chunks, f, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json", "wb") as f:
+        adapter = TypeAdapter(list[MinimalSource])
+        f.write(adapter.dump_json(chunks, indent=2))
 
 
 def _chunk_file_list(
