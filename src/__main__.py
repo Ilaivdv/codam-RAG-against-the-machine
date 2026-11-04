@@ -1,4 +1,4 @@
-from .index.chunking import chunk_file
+from .index.chunking import create_pickled_chunks
 from pathlib import Path
 import fire
 
@@ -7,7 +7,7 @@ _RAW_DATA_PATH = "data/raw/"
 
 
 def index(max_chunk_size: int) -> None:
-    chunk_file(Path(_RAW_DATA_PATH))
+    create_pickled_chunks(Path(_RAW_DATA_PATH), max_chunk_size)
 
 
 def search(query: str, k: int) -> None:

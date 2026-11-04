@@ -5,9 +5,39 @@ from src.errors import IngestError
 from pathlib import Path
 
 
-def chunk_file(path: Path) -> list[MinimalSource]:
+def create_pickled_chunks(path: Path,
+                          max_chunk_size: int) -> list[MinimalSource]:
     if not path.exists():
-        raise IngestError(f"ERROR: {path} is not a valid file path")
-    py_list: list[Path] = list(path.rglob("*.py"))
-    txt_list: list[Path] = list(path.rglob("*.txt")) + list(path.rglob("*.md"))
+        raise IngestError(f"{path} is not a valid file path")
+    
+    _chunk_py_files(list(path.rglob("*.py")), max_chunk_size)
+    _chunk_txt_files(
+            list(path.rglob("*.txt")) + list(path.rglob("*.md")),
+            max_chunk_size)
+
     return []
+
+
+def _chunk_py_files(file_path_list: list[Path],
+                    max_chunk_size: int) -> list[str]:
+    splitter = RecursiveCharacterTextSplitter.from_language(
+            language=Language.PYTHON,
+            chunk_size=max_chunk_size,
+            chunk_overlap=200,
+            )
+    chunks: list[str] = []
+    for f in file_path_list:
+        chunks.extend(splitter.split_text(f.read_text()))
+    return chunks
+
+
+def _chunk_txt_files(file_path_list: list[Path],
+                    max_chunk_size: int) -> list[str]:
+    splitter = RecursiveCharacterTextSplitter(
+            chunk_size=max_chunk_size,
+            chunk_overlap=200,
+            )
+    chunks: list[str] = []
+    for f in file_path_list:
+        chunks.extend(splitter.split_text(f.read_text()))
+    return chunks
