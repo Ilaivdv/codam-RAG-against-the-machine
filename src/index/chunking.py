@@ -13,11 +13,11 @@ def create_pickled_chunks(path: Path,
                           to_file: str = "processed_indices") -> None:
     if not path.exists():
         raise ChunkError((f"'{path}' is not a valid file path.\n"
-                           "Possible fix: run the program from "
-                           "the repository root."))
+                          "Possible fix: run the program from "
+                          "the repository root."))
     if "." in to_file or "/" in to_file:
         raise ChunkError((f"'{to_file}' can't be a directory "
-                           "or have a file extension"))
+                          "or have a file extension"))
 
     # TODO Add tqdm progress bar here
     chunks: list[MinimalSource] = _chunk_file_list([
