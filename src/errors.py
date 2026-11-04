@@ -1,2 +1,2 @@
-class IngestError(Exception):
+class ChunkError(Exception):
     ...

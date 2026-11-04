@@ -1,7 +1,7 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 # from langchain_core.documents import Document
 from src.models import MinimalSource
-from src.errors import IngestError
+from src.errors import ChunkError
 from pathlib import Path
 import pickle
 
@@ -11,13 +11,13 @@ _PROCESSED_CHUNKS_PATH = "data/processed/"
 
 def create_pickled_chunks(path: Path,
                           max_chunk_size: int,
-                          to_file: str = "processed_chunks") -> None:
+                          to_file: str = "processed_indices") -> None:
     if not path.exists():
-        raise IngestError((f"'{path}' is not a valid file path.\n"
+        raise ChunkError((f"'{path}' is not a valid file path.\n"
                            "Possible fix: run the program from "
                            "the repository root."))
     if "." in to_file or "/" in to_file:
-        raise IngestError((f"'{to_file}' can't be a directory "
+        raise ChunkError((f"'{to_file}' can't be a directory "
                            "or have a file extension"))
 
     # TODO Add tqdm progress bar here
@@ -36,7 +36,7 @@ def create_pickled_chunks(path: Path,
         ])
     Path(_PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
     with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.pkl", "wb") as f:
-        pickle.dump(chunks, f)
+        pickle.dump(chunks, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def _chunk_file_list(
