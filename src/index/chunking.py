@@ -28,6 +28,7 @@ def create_pickled_chunks(path: Path,
     print(chunks[0])
     return []
 
+
 def _chunk_file_list(
         to_split: list[tuple[list[Path], RecursiveCharacterTextSplitter]]
         ) -> list[MinimalSource]:
