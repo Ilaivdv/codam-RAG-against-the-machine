@@ -35,5 +35,8 @@ clean:
 	-find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	-find . -type d -name ".pytest_cache" -exec rm -rf {} +
 
+fclean: clean
+	-rm -rf data/*
+
 test: install
 	@ uv run $(PY) -m pytest -v tests
