@@ -6,10 +6,19 @@ from pathlib import Path
 import pickle
 
 
+_PROCESSED_CHUNKS_PATH = "data/processed/"
+
+
 def create_pickled_chunks(path: Path,
-                          max_chunk_size: int) -> list[MinimalSource]:
+                          max_chunk_size: int,
+                          to_file: str = "processed_chunks") -> None:
     if not path.exists():
-        raise IngestError(f"{path} is not a valid file path")
+        raise IngestError((f"'{path}' is not a valid file path.\n"
+                           "Possible fix: run the program from "
+                           "the repository root."))
+    if "." in to_file or "/" in to_file:
+        raise IngestError((f"'{to_file}' can't be a directory "
+                           "or have a file extension"))
 
     # TODO Add tqdm progress bar here
     chunks: list[MinimalSource] = _chunk_file_list([
@@ -25,8 +34,9 @@ def create_pickled_chunks(path: Path,
              chunk_overlap=200)
          ),
         ])
-    print(chunks[0])
-    return []
+    Path(_PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
+    with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.pkl", "wb") as f:
+        pickle.dump(chunks, f)
 
 
 def _chunk_file_list(
