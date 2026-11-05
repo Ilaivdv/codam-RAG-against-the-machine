@@ -8,9 +8,9 @@ from pathlib import Path
 _PROCESSED_CHUNKS_PATH = "data/processed/"
 
 
-def create_lexical_chunks(path: Path,
-                          max_chunk_size: int,
-                          to_file: str = "processed_indices") -> None:
+def create_chunks(path: Path,
+                  max_chunk_size: int,
+                  to_file: str = "processed_indices") -> None:
     if not path.exists():
         raise ChunkError((f"'{path}' is not a valid file path.\n"
                           "Possible fix: run the program from "
