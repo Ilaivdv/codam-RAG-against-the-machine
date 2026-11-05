@@ -8,7 +8,7 @@ from pathlib import Path
 _PROCESSED_CHUNKS_PATH = "data/processed/"
 
 
-def create_pickled_chunks(path: Path,
+def create_lexical_chunks(path: Path,
                           max_chunk_size: int,
                           to_file: str = "processed_indices") -> None:
     if not path.exists():

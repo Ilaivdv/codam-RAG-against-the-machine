@@ -1,4 +1,4 @@
-from .index.chunking import create_pickled_chunks
+from .index.chunking import create_lexical_chunks
 from .errors import ChunkError
 from pathlib import Path
 import fire
@@ -10,7 +10,7 @@ _RAW_DATA_PATH = "data/raw/"
 def index(max_chunk_size: int) -> None:
     if max_chunk_size < 0 or max_chunk_size > 2000:
         raise ChunkError(f"invalid max_chunk_size {max_chunk_size}")
-    create_pickled_chunks(Path(_RAW_DATA_PATH), max_chunk_size)
+    create_lexical_chunks(Path(_RAW_DATA_PATH), max_chunk_size)
 
 
 def search(query: str, k: int) -> None:
