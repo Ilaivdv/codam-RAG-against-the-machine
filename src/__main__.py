@@ -1,18 +1,14 @@
-from .index.chunking import create_chunks
+from .constants import RAW_DATA_PATH
 from .errors import ChunkError, SearchError
+from .index.chunking import create_chunks
 from pathlib import Path
 import fire
-
-
-_RAW_DATA_PATH = "data/raw/"
-_CHUNKED_DATA_PATH = "processed_chunks.json"
 
 
 def index(max_chunk_size: int) -> None:
     if max_chunk_size < 0 or max_chunk_size > 2000:
         raise ChunkError(f"invalid max_chunk_size {max_chunk_size}")
-    create_chunks(Path(_RAW_DATA_PATH), max_chunk_size,
-                  _CHUNKED_DATA_PATH + _CHUNKED_DATA_PATH)
+    create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
 
 def search(query: str, k: int) -> None:
