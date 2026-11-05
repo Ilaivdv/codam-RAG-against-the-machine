@@ -1,6 +1,6 @@
-from .constants import RAW_DATA_PATH
 from .errors import ChunkError, SearchError
-from .index.chunking import create_chunks
+from .index.chunker import create_chunks
+from .constants import RAW_DATA_PATH
 from pathlib import Path
 import fire
 
@@ -14,6 +14,8 @@ def index(max_chunk_size: int) -> None:
 def search(query: str, k: int) -> None:
     if k < 0:
         raise SearchError(f"Value '{k}' is invalid")
+    if not query:
+        raise SearchError("Query can't be empty")
 
 
 def search_dataset(
