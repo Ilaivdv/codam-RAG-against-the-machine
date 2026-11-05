@@ -1,2 +1,6 @@
 class ChunkError(Exception):
     ...
+
+
+class SearchError(Exception):
+    ...
