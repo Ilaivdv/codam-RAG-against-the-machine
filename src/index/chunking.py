@@ -4,7 +4,6 @@ from src.errors import ChunkError
 from pydantic import TypeAdapter
 from pathlib import Path
 from typing import Any
-import time
 import json
 import os
 
@@ -49,22 +48,22 @@ def _chunk_file_list(
     adapter = TypeAdapter(list[MinimalSource])
 
     cache: list[dict[str, Any]] = []
+    cache_file: Path = Path(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json")
     modified_files: set[Path] = set()
-    if Path.exists(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json"):
-        with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json", "rb") as f:
-            cache = json.load(f)
-            for i in cache:
-                if os.path.getmtime(i["file_path"]) > i["last_index_time"]:
-                    modified_files.add(Path(i["file_path"]))
-                    cache = [k for k in cache if k is not i]
-            chunks = adapter.validate_python(cache)
+    if os.path.exists(cache_file):
+        cache = json.load(cache_file.open())
+        for i in cache:
+            if os.path.getmtime(i["file_path"]) > i["last_index_time"]:
+                modified_files.add(Path(i["file_path"]))
+                cache = [k for k in cache if k is not i]
+        chunks = adapter.validate_python(cache)
+        if not modified_files:
+            return adapter.dump_json(chunks, indent=2)
 
-    # print(modified_files)
     for path_list, splitter in to_split:
         if cache:
             if modified_files.intersection(path_list):
-                path_list = modified_files
-                print(path_list)
+                path_list = list(modified_files)
             else:
                 continue
         for f in path_list:
