@@ -3,6 +3,10 @@ from src.models import MinimalSource
 from src.errors import ChunkError
 from pydantic import TypeAdapter
 from pathlib import Path
+from typing import Any
+import time
+import json
+import os
 
 
 _PROCESSED_CHUNKS_PATH = "data/processed/"
@@ -20,7 +24,7 @@ def create_chunks(path: Path,
                           "or have a file extension"))
 
     # TODO Add tqdm progress bar here
-    chunks: list[MinimalSource] = _chunk_file_list([
+    chunks: bytes = _chunk_file_list([
         (list(path.rglob("*.py")),
          RecursiveCharacterTextSplitter.from_language(
              language=Language.PYTHON,
@@ -31,19 +35,38 @@ def create_chunks(path: Path,
          RecursiveCharacterTextSplitter(
              chunk_size=max_chunk_size,
              chunk_overlap=200)
-         ),
-        ])
+         )], to_file)
     Path(_PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
     with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json", "wb") as f:
-        adapter = TypeAdapter(list[MinimalSource])
-        f.write(adapter.dump_json(chunks, indent=2))
+        f.write(chunks)
 
 
 def _chunk_file_list(
-        to_split: list[tuple[list[Path], RecursiveCharacterTextSplitter]]
-        ) -> list[MinimalSource]:
+        to_split: list[tuple[list[Path], RecursiveCharacterTextSplitter]],
+        to_file: str,
+        ) -> bytes:
     chunks: list[MinimalSource] = []
+    adapter = TypeAdapter(list[MinimalSource])
+
+    cache: list[dict[str, Any]] = []
+    modified_files: set[Path] = set()
+    if Path.exists(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json"):
+        with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json", "rb") as f:
+            cache = json.load(f)
+            for i in cache:
+                if os.path.getmtime(i["file_path"]) > i["last_index_time"]:
+                    modified_files.add(Path(i["file_path"]))
+                    cache = [k for k in cache if k is not i]
+            chunks = adapter.validate_python(cache)
+
+    # print(modified_files)
     for path_list, splitter in to_split:
+        if cache:
+            if modified_files.intersection(path_list):
+                path_list = modified_files
+                print(path_list)
+            else:
+                continue
         for f in path_list:
             text = f.read_text()
             for chunk in splitter.split_text(text):
@@ -54,6 +77,7 @@ def _chunk_file_list(
                         MinimalSource(
                             file_path=f.as_posix(), content=chunk,
                             first_character_index=start_index,
-                            last_character_index=end_index)
+                            last_character_index=end_index,
+                            last_index_time=os.path.getmtime(f))
                         )
-    return chunks
+    return adapter.dump_json(chunks, indent=2)

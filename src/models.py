@@ -7,6 +7,7 @@ class MinimalSource(BaseModel):
     content: str
     first_character_index: int
     last_character_index: int
+    last_index_time: float
 
 
 class UnansweredQuestion(BaseModel):
