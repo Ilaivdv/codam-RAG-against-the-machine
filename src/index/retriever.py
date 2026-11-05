@@ -5,6 +5,7 @@ from typing import Any
 import bm25s
 import json
 
+
 def build_index_from_corpus() -> bm25s.BM25:
     corpus_path: Path = Path(PROCESSED_CHUNKS_PATH + CHUNKED_FILES_NAME)
     if not corpus_path.exists():

@@ -14,7 +14,6 @@ class CLI(object):
             raise ValueError(f"invalid max_chunk_size '{max_chunk_size}'")
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
-
     def search(self, query: str, k: int) -> None:
         if k < 0:
             raise ValueError(f"Value '{k}' is invalid")
@@ -24,7 +23,6 @@ class CLI(object):
         retriever = build_index_from_corpus()
         retrieve_sources_from_query(query, k, retriever)
 
-
     def search_dataset(
             self,
             dataset_path: Path,
@@ -32,17 +30,14 @@ class CLI(object):
             save_directory: str) -> None:
         ...
 
-
     def answer(self, query: str, k: int) -> None:
         ...
-
 
     def answer_dataset(
             self,
             student_search_results_path: Path,
             save_directory: str) -> None:
         ...
-
 
     def evaluate(
             self,
