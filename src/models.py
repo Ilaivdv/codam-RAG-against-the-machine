@@ -4,8 +4,10 @@ import uuid
 
 class MinimalSource(BaseModel):
     file_path: str
+    content: str
     first_character_index: int
     last_character_index: int
+    last_index_time: float
 
 
 class UnansweredQuestion(BaseModel):

@@ -1,10 +1,14 @@
 [project]
 name = "RAG-against-the-machine"
+authors = [ { name = "Ilai" } ]
 version = "0.0.1"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
 	"pydantic",
+	"langchain",
+	"langchain-text-splitters",
+	"bm25s",
 	"fire",
 	"tqdm"
 ]
@@ -18,6 +22,9 @@ dev = [
 
 [tool.mypy]
 ignore_missing_imports = true
+exclude = [
+	"data/*"
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
