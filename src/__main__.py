@@ -3,6 +3,7 @@ from src.index import (
         build_index_from_corpus,
         retrieve_sources_from_query
         )
+from src.errors import ChunkError, SearchError
 from .constants import RAW_DATA_PATH
 from pathlib import Path
 import fire
@@ -47,4 +48,7 @@ class CLI(object):
 
 
 if __name__ == "__main__":
-    fire.Fire(CLI)
+    try:
+        fire.Fire(CLI)
+    except (ValueError, ChunkError, SearchError) as e:
+        print(e)
