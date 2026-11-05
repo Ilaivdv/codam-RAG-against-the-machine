@@ -11,16 +11,11 @@ import os
 _PROCESSED_CHUNKS_PATH = "data/processed/"
 
 
-def create_chunks(path: Path,
-                  max_chunk_size: int,
-                  to_file: str = "processed_indices") -> None:
+def create_chunks(path: Path, max_chunk_size: int, to_file: str) -> None:
     if not path.exists():
         raise ChunkError((f"'{path}' is not a valid file path.\n"
                           "Possible fix: run the program from "
                           "the repository root."))
-    if "." in to_file or "/" in to_file:
-        raise ChunkError((f"'{to_file}' can't be a directory "
-                          "or have a file extension"))
 
     # TODO Add tqdm progress bar here
     chunks: bytes = _chunk_file_list([
@@ -36,7 +31,7 @@ def create_chunks(path: Path,
              chunk_overlap=200)
          )], to_file)
     Path(_PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
-    with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json", "wb") as f:
+    with open(_PROCESSED_CHUNKS_PATH + to_file, "wb") as f:
         f.write(chunks)
 
 
@@ -48,7 +43,7 @@ def _chunk_file_list(
     adapter = TypeAdapter(list[MinimalSource])
 
     cache: list[dict[str, Any]] = []
-    cache_file: Path = Path(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json")
+    cache_file: Path = Path(_PROCESSED_CHUNKS_PATH + to_file)
     modified_files: set[Path] = set()
     if os.path.exists(cache_file):
         cache = json.load(cache_file.open())
