@@ -23,11 +23,18 @@ def create_chunks(path: Path, max_chunk_size: int) -> None:
              chunk_size=max_chunk_size,
              chunk_overlap=max_chunk_size // 5)
          ),
-        (list(path.rglob("*.md")) + list(path.rglob("*.txt")),
+        (list(path.rglob("*.md")),
+         RecursiveCharacterTextSplitter.from_language(
+             language=Language.MARKDOWN,
+             chunk_size=max_chunk_size,
+             chunk_overlap=max_chunk_size // 5)
+         ),
+        (list(path.rglob("*.txt")),
          RecursiveCharacterTextSplitter(
              chunk_size=max_chunk_size,
              chunk_overlap=max_chunk_size // 5)
-         )])
+         ),
+        ])
     Path(PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
     with open(PROCESSED_CHUNKS_PATH + CHUNKED_FILES_NAME, "wb") as f:
         f.write(chunks)
