@@ -26,7 +26,8 @@ def retrieve_sources_from_query(
         retriever: bm25s.BM25
         ) -> ...:
     query_tokens = bm25s.tokenize(query)
-    res, scores = retriever.retrieve(query_tokens=query_tokens, k=k)
+    res, scores = retriever.retrieve(query_tokens=query_tokens, k=k,
+                                     n_threads=-1)
 
     for i in range(res.shape[1]):
         doc, score = res[0, i], scores[0, i]
