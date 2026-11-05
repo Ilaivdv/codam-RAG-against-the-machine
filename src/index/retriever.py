@@ -30,5 +30,5 @@ def retrieve_sources_from_query(
 
     for i in range(res.shape[1]):
         doc, score = res[0, i], scores[0, i]
-        print(f"Rank {i+1} (score: {score:.2f}): {doc["first_character_index"],
+        print(f"Path {doc["file_path"]} (score: {score:.2f}): {doc["first_character_index"],
               doc["last_character_index"]}")
