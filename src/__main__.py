@@ -9,6 +9,7 @@ from .models import MinimalSource
 from pathlib import Path
 from bm25s import BM25
 import fire
+import sys
 
 
 class CLI(object):
@@ -37,10 +38,24 @@ class CLI(object):
 
     def search_dataset(
             self,
-            dataset_path: Path,
+            dataset_path: str,
             k: int,
             save_directory: str = "data/output/") -> None:
-        ...
+        if not Path(dataset_path).is_file() or not dataset_path.endswith(
+                ".json"):
+            raise ValueError((f"Input path '{save_directory}' is invalid, "
+                              " expected file path"))
+        if k < 0:
+            raise ValueError(f"Value '{k}' is invalid")
+        if save_directory.endswith("/"):
+            raise ValueError((f"Output path '{save_directory}' is invalid, "
+                              " expected file but got directory"))
+        if Path(save_directory).exists():
+            reply = input("WARNING: save_directory already " +
+                          "exists, overwrite it? [y/n]: ").lower()
+            if not (reply == "y" or reply == "yes" or not reply):
+                sys.exit(1)
+        print("ok")
 
     def answer(self, query: str, k: int) -> None:
         ...
