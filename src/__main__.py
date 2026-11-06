@@ -32,7 +32,8 @@ class CLI(object):
         res: list[MinimalSource] = self._search_from_query(
                 query, k, init_retriever())
         for s in res:
-            print(s.file_path, s.first_character_index, s.last_character_index)
+            print((f"{s.file_path} [{s.first_character_index}:"
+                   f"{s.last_character_index}]"))
 
     def search_dataset(
             self,
