@@ -25,20 +25,14 @@ def retrieve_sources_from_query(
         query: str,
         k: int,
         retriever: bm25s.BM25
-        ) -> ...:
+        ) -> list[MinimalSource]:
     sources_list: list[MinimalSource] = []
     query_tokens = bm25s.tokenize(query, show_progress=False)
-    # results, scores = retriever.retrieve(
-    #         query_tokens=query_tokens, k=k,
-    #         n_threads=-1)
     results = retriever.retrieve(
             query_tokens=query_tokens, k=k,
             n_threads=-1)[0]
 
     for i in range(results.shape[1]):
-        # doc, score = results[0, i], scores[0, i]
-        # print((f"{doc["file_path"]} {doc["first_character_index"]}:"
-        #        f"{doc["last_character_index"]} score: {score:.2f}"))
         doc = results[0, i]
         sources_list.append(MinimalSource(**doc))
 
