@@ -10,6 +10,7 @@ from pathlib import Path
 from bm25s import BM25
 import fire
 import sys
+import os
 
 
 class CLI(object):
@@ -25,11 +26,8 @@ class CLI(object):
         return retrieve_sources_from_query(query, k, retriever)
 
     def search(self, query: str, k: int) -> None:
-        if k < 0:
-            raise ValueError(f"Value '{k}' is invalid")
-        if not query:
-            raise ValueError("Query can't be empty")
-
+        assert isinstance(k, int) and k > 0, \
+                f"Expected positive int value for k, got: {k}"
         res: list[MinimalSource] = self._search_from_query(
                 query, k, init_retriever())
         for s in res:
@@ -40,22 +38,16 @@ class CLI(object):
             self,
             dataset_path: str,
             k: int,
-            save_directory: str = "data/output/") -> None:
-        if not Path(dataset_path).is_file() or not dataset_path.endswith(
-                ".json"):
-            raise ValueError((f"Input path '{save_directory}' is invalid, "
-                              " expected file path"))
-        if k < 0:
-            raise ValueError(f"Value '{k}' is invalid")
-        if save_directory.endswith("/"):
-            raise ValueError((f"Output path '{save_directory}' is invalid, "
-                              " expected file but got directory"))
-        if Path(save_directory).exists():
-            reply = input("WARNING: save_directory already " +
-                          "exists, overwrite it? [y/n]: ").lower()
-            if not (reply == "y" or reply == "yes" or not reply):
-                sys.exit(1)
-        print("ok")
+            save_directory: str = \
+                    "data/output/search_results/UnansweredQuestions"
+            ) -> None:
+        assert os.path.isfile(dataset_path) and \
+                dataset_path.endswith(".json"), \
+                f"Expected existing JSON file for dataset_path, got: {
+                dataset_path}"
+        assert isinstance(k, int) and k > 0, \
+                f"Expected positive int value for k, got: {k}"
+        ...
 
     def answer(self, query: str, k: int) -> None:
         ...
@@ -76,5 +68,5 @@ class CLI(object):
 if __name__ == "__main__":
     try:
         fire.Fire(CLI)
-    except (ValueError, ChunkError, SearchError) as e:
+    except (ValueError, AssertionError, ChunkError, SearchError) as e:
         print(e)
