@@ -9,7 +9,6 @@ from .models import MinimalSource
 from pathlib import Path
 from bm25s import BM25
 import fire
-import sys
 import os
 
 
@@ -38,15 +37,15 @@ class CLI(object):
             self,
             dataset_path: str,
             k: int,
-            save_directory: str = \
-                    "data/output/search_results/UnansweredQuestions"
+            save_directory: str =
+            "data/output/search_results/UnansweredQuestions"
             ) -> None:
         assert os.path.isfile(dataset_path) and \
                 dataset_path.endswith(".json"), \
                 f"Expected existing JSON file for dataset_path, got: {
                 dataset_path}"
         assert isinstance(k, int) and k > 0, \
-                f"Expected positive int value for k, got: {k}"
+               f"Expected positive int value for k, got: {k}"
         ...
 
     def answer(self, query: str, k: int) -> None:
