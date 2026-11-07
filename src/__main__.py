@@ -42,7 +42,7 @@ class CLI(object):
             ) -> None:
         assert os.path.isfile(dataset_path) and \
                 dataset_path.endswith(".json"), \
-                f"Expected existing JSON file for dataset_path, got: {
+                f"Expected an existing JSON file for dataset_path, got: {
                 dataset_path}"
         assert isinstance(k, int) and k > 0, \
                f"Expected positive int value for k, got: {k}"
