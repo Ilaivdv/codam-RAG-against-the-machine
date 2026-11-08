@@ -26,8 +26,8 @@ class CLI(object):
 
     def search(self, query: str, k: int) -> None:
         assert isinstance(k, int) and k > 0, \
-                f"Expected positive int value for k, got: {k}"
-        res: list[MinimalSource] = self._search_from_query(
+               f"Expected an integer greater than 0 for argument k, got: {k}"
+        res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
         for s in res:
             print((f"{s.file_path} [{s.first_character_index}:"
@@ -37,15 +37,14 @@ class CLI(object):
             self,
             dataset_path: str,
             k: int,
-            save_directory: str =
-            "data/output/search_results/UnansweredQuestions"
+            save_directory: str
             ) -> None:
         assert os.path.isfile(dataset_path) and \
                 dataset_path.endswith(".json"), \
                 f"Expected an existing JSON file for dataset_path, got: {
                 dataset_path}"
         assert isinstance(k, int) and k > 0, \
-               f"Expected positive int value for k, got: {k}"
+               f"Expected an integer greater an 0 for argument k, got: {k}"
         ...
 
     def answer(self, query: str, k: int) -> None:
