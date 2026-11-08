@@ -7,7 +7,6 @@ from src.errors import ChunkError, SearchError
 from .constants import RAW_DATA_PATH
 from .models import MinimalSource
 from pathlib import Path
-from bm25s import BM25
 import fire
 import os
 
@@ -17,12 +16,6 @@ class CLI(object):
         if max_chunk_size < 0 or max_chunk_size > 2000:
             raise ValueError(f"invalid max_chunk_size '{max_chunk_size}'")
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
-
-    def _search_from_query(self,
-                           query: str,
-                           k: int,
-                           retriever: BM25) -> list[MinimalSource]:
-        return retrieve_sources_from_query(query, k, retriever)
 
     def search(self, query: str, k: int) -> None:
         assert isinstance(k, int) and k > 0, \
