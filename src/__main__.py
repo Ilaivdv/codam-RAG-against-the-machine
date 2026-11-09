@@ -62,5 +62,5 @@ class CLI(object):
 if __name__ == "__main__":
     try:
         fire.Fire(CLI)
-    except (ValueError, AssertionError, ChunkError, SearchError) as e:
+    except Exception as e:
         print(e)
