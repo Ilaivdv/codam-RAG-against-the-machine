@@ -39,8 +39,8 @@ class CLI(object):
         assert isinstance(k, int) and k > 0, \
                f"Expected an integer greater an 0 for argument k, got: {k}"
         assert not save_directory.startswith("/") and \
-                not save_directory.startswith("~"), \
-                f"Argument save_directory out of scope, got: {save_directory}"
+               not save_directory.startswith("~"), \
+               f"Argument save_directory out of scope, got: {save_directory}"
         ...
 
     def answer(self, query: str, k: int) -> None:
