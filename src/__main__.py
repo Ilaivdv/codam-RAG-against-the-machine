@@ -3,7 +3,6 @@ from src.index import (
         init_retriever,
         retrieve_sources_from_query
         )
-from src.errors import ChunkError, SearchError
 from .constants import RAW_DATA_PATH
 from .models import MinimalSource
 from pathlib import Path
@@ -11,7 +10,7 @@ import fire
 import os
 
 
-class CLI(object):
+class CLI:
     def index(self, max_chunk_size: int) -> None:
         if max_chunk_size < 0 or max_chunk_size > 2000:
             raise ValueError(f"invalid max_chunk_size '{max_chunk_size}'")
