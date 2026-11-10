@@ -19,13 +19,13 @@ class CLI:
         if not isinstance(max_chunk_size, int) or not \
                 0 < max_chunk_size <= 2000:
             raise CLIError(("Expected integer value max_chunk_size "
-                              f"between 0 and 2000, got: {max_chunk_size}"))
+                            f"between 0 and 2000, got: {max_chunk_size}"))
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
     def search(self, query: str, k: int) -> None:
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
-                               f"than 0 for argument k, got: {k}"))
+                            f"than 0 for argument k, got: {k}"))
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
         for s in res:
@@ -41,13 +41,13 @@ class CLI:
         if not os.path.isfile(dataset_path) or not \
                 dataset_path.endswith(".json"):
             raise CLIError(("Expected an existing JSON file "
-                               f"for dataset_path, got: {dataset_path}"))
+                            f"for dataset_path, got: {dataset_path}"))
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
-                               f"than 0 for argument k, got: {k}"))
+                            f"than 0 for argument k, got: {k}"))
         if save_directory.startswith(("/", "~")):
             raise CLIError(("Argument save_directory out of scope, "
-                               f"got: {save_directory}"))
+                            f"got: {save_directory}"))
 
         query_list: list[dict[str, str]] | None = []
         query_retrievals: list[MinimalSearchResults] = []
@@ -56,7 +56,7 @@ class CLI:
             json_dict: dict[str, Any] = json.load(f)
             if not (query_list := json_dict.get("rag_questions")):
                 raise CLIError(("Expected JSON list 'rag_questions' "
-                                   f"at file path: {dataset_path}"))
+                                f"at file path: {dataset_path}"))
             for query in query_list:
                 query_retrievals.append(MinimalSearchResults(
                     question_id=query["question_id"],
