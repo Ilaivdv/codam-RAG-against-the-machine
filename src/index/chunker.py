@@ -50,6 +50,7 @@ def _chunk_file_list(
     cache: list[dict[str, Any]] = []
     cache_file: Path = Path(PROCESSED_CHUNKS_PATH + CHUNKED_FILES_NAME)
     modified_files: set[Path] = set()
+
     if os.path.exists(cache_file):
         cache = json.load(cache_file.open())
         for i in cache:
