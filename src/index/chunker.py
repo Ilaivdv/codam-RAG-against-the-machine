@@ -56,7 +56,7 @@ def _chunk_file_list(
         file_cached: bool = False
         for i in cache[:]:
             if not i.get("file_path"):
-                #TODO Add warning to logs
+                # TODO Add warning to logs
                 print("Found chunk with no file_path, rebuilding entire cache")
                 cache.clear()
                 break
