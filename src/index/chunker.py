@@ -11,9 +11,10 @@ import os
 
 def create_chunks(path: Path, max_chunk_size: int) -> None:
     if not path.exists():
-        raise ChunkError((f"'{path}' is not a valid file path.\n"
-                          "Possible fix: run the program from "
-                          "the repository root."))
+        raise ChunkError((f"'{path}' doesn't exist.\n"
+                          "Possible fixes: run the program from "
+                          "the repository root or run make install "
+                          "to extract the default corpus."))
 
     # TODO Add tqdm progress bar here
     chunks: bytes = _chunk_file_list([
