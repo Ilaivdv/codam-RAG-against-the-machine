@@ -1,8 +1,8 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 from src import PROCESSED_CHUNKS_PATH, CHUNKED_FILES_NAME
+from pydantic import TypeAdapter, ValidationError
 from src.models import MinimalSource
 from src.errors import IndexError
-from pydantic import TypeAdapter
 from pathlib import Path
 from typing import Any
 import json
@@ -53,12 +53,25 @@ def _chunk_file_list(
 
     if os.path.exists(cache_file):
         cache = json.load(cache_file.open())
-        for i in cache:
-            if os.path.getmtime(i["file_path"]) > i["last_index_time"]:
+        file_cached: bool = False
+        for i in cache[:]:
+            if not i.get("file_path"):
+                #TODO Add warning to logs
+                print("Found chunk with no file_path, rebuilding entire cache")
+                cache.clear()
+                break
+            try:
+                MinimalSource.model_validate(i)
+                if os.path.getmtime(i["file_path"]) > i["last_index_time"]:
+                    file_cached = True
+            except ValidationError:
+                file_cached = True
+            if file_cached:
                 modified_files.add(Path(i["file_path"]))
-                cache = [k for k in cache if k is not i]
+                cache.remove(i)
+                file_cached = False
         chunks = adapter.validate_python(cache)
-        if not modified_files:
+        if not modified_files and cache:
             return adapter.dump_json(chunks, indent=2)
 
     for path_list, splitter in to_split:
