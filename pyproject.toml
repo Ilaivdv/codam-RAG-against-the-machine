@@ -8,7 +8,7 @@ dependencies = [
 	"pydantic",
 	"langchain",
 	"langchain-text-splitters",
-	"bm25s",
+	"bm25s[core]",
 	"fire",
 	"tqdm"
 ]

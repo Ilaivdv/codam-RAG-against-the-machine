@@ -1,4 +1,5 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
+from src import PROCESSED_CHUNKS_PATH, CHUNKED_FILES_NAME
 from src.models import MinimalSource
 from src.errors import ChunkError
 from pydantic import TypeAdapter
@@ -8,19 +9,12 @@ import json
 import os
 
 
-_PROCESSED_CHUNKS_PATH = "data/processed/"
-
-
-def create_chunks(path: Path,
-                  max_chunk_size: int,
-                  to_file: str = "processed_indices") -> None:
+def create_chunks(path: Path, max_chunk_size: int) -> None:
     if not path.exists():
-        raise ChunkError((f"'{path}' is not a valid file path.\n"
-                          "Possible fix: run the program from "
-                          "the repository root."))
-    if "." in to_file or "/" in to_file:
-        raise ChunkError((f"'{to_file}' can't be a directory "
-                          "or have a file extension"))
+        raise ChunkError((f"'{path}' doesn't exist.\n"
+                          "Possible fixes: run the program from "
+                          "the repository root or run make install "
+                          "to extract the default corpus."))
 
     # TODO Add tqdm progress bar here
     chunks: bytes = _chunk_file_list([
@@ -28,27 +22,33 @@ def create_chunks(path: Path,
          RecursiveCharacterTextSplitter.from_language(
              language=Language.PYTHON,
              chunk_size=max_chunk_size,
-             chunk_overlap=200)
+             chunk_overlap=max_chunk_size // 5)
          ),
-        (list(path.rglob("*.md")) + list(path.rglob("*.txt")),
+        (list(path.rglob("*.md")),
+         RecursiveCharacterTextSplitter.from_language(
+             language=Language.MARKDOWN,
+             chunk_size=max_chunk_size,
+             chunk_overlap=max_chunk_size // 5)
+         ),
+        (list(path.rglob("*.txt")),
          RecursiveCharacterTextSplitter(
              chunk_size=max_chunk_size,
-             chunk_overlap=200)
-         )], to_file)
-    Path(_PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
-    with open(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json", "wb") as f:
+             chunk_overlap=max_chunk_size // 5)
+         ),
+        ])
+    Path(PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
+    with open(PROCESSED_CHUNKS_PATH + CHUNKED_FILES_NAME, "wb") as f:
         f.write(chunks)
 
 
 def _chunk_file_list(
         to_split: list[tuple[list[Path], RecursiveCharacterTextSplitter]],
-        to_file: str,
         ) -> bytes:
     chunks: list[MinimalSource] = []
     adapter = TypeAdapter(list[MinimalSource])
 
     cache: list[dict[str, Any]] = []
-    cache_file: Path = Path(f"{_PROCESSED_CHUNKS_PATH}{to_file}.json")
+    cache_file: Path = Path(PROCESSED_CHUNKS_PATH + CHUNKED_FILES_NAME)
     modified_files: set[Path] = set()
     if os.path.exists(cache_file):
         cache = json.load(cache_file.open())
