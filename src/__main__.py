@@ -1,11 +1,15 @@
+from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
+from .constants import RAW_DATA_PATH
 from src.index import (
         create_chunks,
         init_retriever,
         retrieve_sources_from_query
         )
-from .constants import RAW_DATA_PATH
-from .models import MinimalSource
+from .errors import SearchError
 from pathlib import Path
+from bm25s import BM25
+from typing import Any
+import json
 import fire
 import os
 
@@ -40,7 +44,30 @@ class CLI:
         assert not save_directory.startswith("/") and \
                not save_directory.startswith("~"), \
                f"Argument save_directory out of scope, got: {save_directory}"
-        ...
+
+        query_list: list[dict[str, str]] | None = []
+        query_retrievals: list[MinimalSearchResults] = []
+        retriever: BM25 = init_retriever()
+        with open(dataset_path, "rb") as f:
+            json_dict: dict[str, Any] = json.load(f)
+            if not (query_list := json_dict.get("rag_questions")):
+                raise SearchError(("Expected JSON list 'rag_questions' "
+                    f"at file path: {dataset_path}"))
+            for query in query_list:
+                query_retrievals.append(MinimalSearchResults(
+                    question_id=query["question_id"],
+                    question=query["question"],
+                    retrieved_sources=retrieve_sources_from_query(
+                        query["question"], k, retriever
+                        )
+                    ))
+        search_result = StudentSearchResults(
+                search_results=query_retrievals,
+                k=k)
+        file_dest: str = os.path.join(
+                save_directory, os.path.split(dataset_path)[1])
+        with open(file_dest, "wb") as f:
+            f.write(search_result.model_dump_json(indent=2).encode())
 
     def answer(self, query: str, k: int) -> None:
         ...
