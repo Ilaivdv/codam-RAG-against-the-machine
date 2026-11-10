@@ -1,5 +1,5 @@
 from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
-from .errors import SearchError, ChunkError
+from .errors import CLIError, IndexError, SearchError
 from .constants import RAW_DATA_PATH
 from src.index import (
         create_chunks,
@@ -18,13 +18,13 @@ class CLI:
     def index(self, max_chunk_size: int) -> None:
         if not isinstance(max_chunk_size, int) or not \
                 0 < max_chunk_size <= 2000:
-            raise ChunkError(("Expected integer value max_chunk_size "
+            raise CLIError(("Expected integer value max_chunk_size "
                               f"between 0 and 2000, got: {max_chunk_size}"))
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
     def search(self, query: str, k: int) -> None:
         if not isinstance(k, int) or k <= 0:
-            raise SearchError(("Expected an integer greater "
+            raise CLIError(("Expected an integer greater "
                                f"than 0 for argument k, got: {k}"))
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
@@ -40,13 +40,13 @@ class CLI:
             ) -> None:
         if not os.path.isfile(dataset_path) or not \
                 dataset_path.endswith(".json"):
-            raise SearchError(("Expected an existing JSON file "
+            raise CLIError(("Expected an existing JSON file "
                                f"for dataset_path, got: {dataset_path}"))
         if not isinstance(k, int) or k <= 0:
-            raise SearchError(("Expected an integer greater "
+            raise CLIError(("Expected an integer greater "
                                f"than 0 for argument k, got: {k}"))
         if save_directory.startswith(("/", "~")):
-            raise SearchError(("Argument save_directory out of scope, "
+            raise CLIError(("Argument save_directory out of scope, "
                                f"got: {save_directory}"))
 
         query_list: list[dict[str, str]] | None = []
@@ -55,7 +55,7 @@ class CLI:
         with open(dataset_path, "rb") as f:
             json_dict: dict[str, Any] = json.load(f)
             if not (query_list := json_dict.get("rag_questions")):
-                raise SearchError(("Expected JSON list 'rag_questions' "
+                raise CLIError(("Expected JSON list 'rag_questions' "
                                    f"at file path: {dataset_path}"))
             for query in query_list:
                 query_retrievals.append(MinimalSearchResults(
@@ -92,5 +92,5 @@ class CLI:
 if __name__ == "__main__":
     try:
         fire.Fire(CLI)
-    except (ChunkError, SearchError) as e:
+    except (CLIError, IndexError, SearchError) as e:
         print(e)

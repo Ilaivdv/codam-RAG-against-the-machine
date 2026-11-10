@@ -1,6 +1,14 @@
-class ChunkError(Exception):
+class ValidationError(ValueError):
     ...
 
 
-class SearchError(Exception):
+class CLIError(ValidationError):
+    ...
+
+
+class IndexError(ValidationError):
+    ...
+
+
+class SearchError(ValidationError):
     ...
