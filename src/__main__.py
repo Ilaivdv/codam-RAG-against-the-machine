@@ -52,7 +52,7 @@ class CLI:
             json_dict: dict[str, Any] = json.load(f)
             if not (query_list := json_dict.get("rag_questions")):
                 raise SearchError(("Expected JSON list 'rag_questions' "
-                    f"at file path: {dataset_path}"))
+                                   f"at file path: {dataset_path}"))
             for query in query_list:
                 query_retrievals.append(MinimalSearchResults(
                     question_id=query["question_id"],
