@@ -56,7 +56,7 @@ def _chunk_file_list(
         file_cached: bool = False
         for i in cache[:]:
             if not i.get("file_path") or not \
-                    os.path.exists(i.get("file_path")):
+                    os.path.exists(str(i.get("file_path"))):
                 # TODO Add warning to logs
                 print(("Found chunk with missing/invalid file_path, "
                        "rebuilding cache"))
