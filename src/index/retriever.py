@@ -14,7 +14,8 @@ def init_retriever() -> bm25s.BM25:
                            "Please run `uv run -m src index --k=<int>` first"))
 
     corpus: list[dict[str, Any]] = json.load(corpus_path.open())
-    corpus_tokens = bm25s.tokenize([chunk["content"] for chunk in corpus])
+    corpus_tokens = bm25s.tokenize([chunk["content"] for chunk in corpus if
+                                    chunk.get("content")])
 
     retriever: bm25s.BM25 = bm25s.BM25(corpus=corpus)
     retriever.index(corpus_tokens)
