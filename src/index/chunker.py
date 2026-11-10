@@ -55,9 +55,11 @@ def _chunk_file_list(
         cache = json.load(cache_file.open())
         file_cached: bool = False
         for i in cache[:]:
-            if not i.get("file_path"):
+            if not i.get("file_path") or not \
+                    os.path.exists(i.get("file_path")):
                 # TODO Add warning to logs
-                print("Found chunk with no file_path, rebuilding entire cache")
+                print(("Found chunk with missing/invalid file_path, "
+                       "rebuilding cache"))
                 cache.clear()
                 break
             try:
