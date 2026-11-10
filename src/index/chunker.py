@@ -1,7 +1,7 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
 from src import PROCESSED_CHUNKS_PATH, CHUNKED_FILES_NAME
 from src.models import MinimalSource
-from src.errors import ChunkError
+from src.errors import IndexError
 from pydantic import TypeAdapter
 from pathlib import Path
 from typing import Any
@@ -11,10 +11,10 @@ import os
 
 def create_chunks(path: Path, max_chunk_size: int) -> None:
     if not path.exists():
-        raise ChunkError((f"'{path}' doesn't exist.\n"
+        raise IndexError((f"'{path}' doesn't exist.\n"
                           "Possible fixes: run the program from "
                           "the repository root or run make install "
-                          "to extract the default corpus."))
+                          "to extract the default corpus"))
 
     # TODO Add tqdm progress bar here
     chunks: bytes = _chunk_file_list([
@@ -50,6 +50,7 @@ def _chunk_file_list(
     cache: list[dict[str, Any]] = []
     cache_file: Path = Path(PROCESSED_CHUNKS_PATH + CHUNKED_FILES_NAME)
     modified_files: set[Path] = set()
+
     if os.path.exists(cache_file):
         cache = json.load(cache_file.open())
         for i in cache:

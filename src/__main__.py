@@ -1,11 +1,11 @@
 from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
+from .errors import CLIError, IndexError, SearchError
 from .constants import RAW_DATA_PATH
 from src.index import (
         create_chunks,
         init_retriever,
         retrieve_sources_from_query
         )
-from .errors import SearchError
 from pathlib import Path
 from bm25s import BM25
 from typing import Any
@@ -16,13 +16,16 @@ import os
 
 class CLI:
     def index(self, max_chunk_size: int) -> None:
-        if max_chunk_size < 0 or max_chunk_size > 2000:
-            raise ValueError(f"invalid max_chunk_size '{max_chunk_size}'")
+        if not isinstance(max_chunk_size, int) or not \
+                0 < max_chunk_size <= 2000:
+            raise CLIError(("Expected integer value max_chunk_size "
+                            f"between 0 and 2000, got: {max_chunk_size}"))
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
     def search(self, query: str, k: int) -> None:
-        assert isinstance(k, int) and k > 0, \
-               f"Expected an integer greater than 0 for argument k, got: {k}"
+        if not isinstance(k, int) or k <= 0:
+            raise CLIError(("Expected an integer greater "
+                            f"than 0 for argument k, got: {k}"))
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
         for s in res:
@@ -35,15 +38,16 @@ class CLI:
             k: int,
             save_directory: str
             ) -> None:
-        assert os.path.isfile(dataset_path) and \
-                dataset_path.endswith(".json"), \
-                f"Expected an existing JSON file for dataset_path, got: {
-                dataset_path}"
-        assert isinstance(k, int) and k > 0, \
-               f"Expected an integer greater an 0 for argument k, got: {k}"
-        assert not save_directory.startswith("/") and \
-               not save_directory.startswith("~"), \
-               f"Argument save_directory out of scope, got: {save_directory}"
+        if not os.path.isfile(dataset_path) or not \
+                dataset_path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            f"for dataset_path, got: {dataset_path}"))
+        if not isinstance(k, int) or k <= 0:
+            raise CLIError(("Expected an integer greater "
+                            f"than 0 for argument k, got: {k}"))
+        if save_directory.startswith(("/", "~")):
+            raise CLIError(("Argument save_directory out of scope, "
+                            f"got: {save_directory}"))
 
         query_list: list[dict[str, str]] | None = []
         query_retrievals: list[MinimalSearchResults] = []
@@ -51,8 +55,8 @@ class CLI:
         with open(dataset_path, "rb") as f:
             json_dict: dict[str, Any] = json.load(f)
             if not (query_list := json_dict.get("rag_questions")):
-                raise SearchError(("Expected JSON list 'rag_questions' "
-                                   f"at file path: {dataset_path}"))
+                raise CLIError(("Expected JSON list 'rag_questions' "
+                                f"at file path: {dataset_path}"))
             for query in query_list:
                 query_retrievals.append(MinimalSearchResults(
                     question_id=query["question_id"],
@@ -88,5 +92,5 @@ class CLI:
 if __name__ == "__main__":
     try:
         fire.Fire(CLI)
-    except Exception as e:
+    except (CLIError, IndexError, SearchError) as e:
         print(e)
