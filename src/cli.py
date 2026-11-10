@@ -25,6 +25,8 @@ class CLI:
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
+        if not query:
+            raise CLIError("Got an empty query")
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
         for s in res:
