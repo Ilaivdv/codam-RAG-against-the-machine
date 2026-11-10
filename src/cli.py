@@ -1,11 +1,11 @@
 from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
-from .errors import CLIError, IndexError, SearchError
 from .constants import RAW_DATA_PATH
 from src.index import (
         create_chunks,
         init_retriever,
         retrieve_sources_from_query
         )
+from .errors import CLIError
 from pathlib import Path
 from bm25s import BM25
 from typing import Any
