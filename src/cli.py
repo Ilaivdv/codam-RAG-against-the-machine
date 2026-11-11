@@ -64,7 +64,7 @@ class CLI:
         with open(file_dest, "wb") as f:
             f.write(search_result.model_dump_json(indent=2).encode())
 
-    def answer(self, query: str, k: int) -> None:
+    def answer(self, query: str, k: int) -> str:
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
@@ -73,7 +73,7 @@ class CLI:
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
         llm = LLM("Qwen/Qwen3-0.6B")
-        print(llm.process_prompt(query, res))
+        return llm.process_prompt(query, res)
 
     def answer_dataset(
             self,
@@ -87,6 +87,10 @@ class CLI:
         if save_directory.startswith(("/", "~", "../")):
             raise CLIError(("Argument save_directory out of scope, "
                             f"got: {save_directory}"))
+
+        search_results = StudentSearchResults.model_validate_json(
+                Path(student_search_results_path).read_bytes())
+        llm = LLM("Qwen/Qwen3-0.6B")
 
     def evaluate(
             self,
