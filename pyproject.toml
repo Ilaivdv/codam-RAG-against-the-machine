@@ -8,6 +8,7 @@ dependencies = [
 	"langchain-text-splitters",
 	"transformers",
 	"bm25s[core]",
+	"accelerate",
 	"langchain",
 	"pydantic",
 	"torch",
