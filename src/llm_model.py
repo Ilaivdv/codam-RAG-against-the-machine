@@ -1,10 +1,10 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from .models import MinimalSource
 from typing import Any
 
 
 class LLM:
     def __init__(self, model_name: str) -> None:
+        from transformers import AutoModelForCausalLM, AutoTokenizer
         self.model: Any = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 dtype="auto",
