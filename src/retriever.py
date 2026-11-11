@@ -39,6 +39,7 @@ def retrieve_sources_from_query(
 
     return sources_list
 
+
 def retrieve_sources_from_dataset(
         k: int,
         dataset_path: str,

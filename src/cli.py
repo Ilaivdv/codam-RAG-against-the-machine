@@ -14,9 +14,6 @@ from .chunker import create_chunks
 from .errors import CLIError
 from .llm_model import LLM
 from pathlib import Path
-from bm25s import BM25
-from typing import Any
-import json
 import os
 
 
@@ -106,7 +103,7 @@ class CLI:
                 question=res.question,
                 retrieved_sources=res.retrieved_sources,
                 answer=self.answer(
-                res.question, search_results.k
+                    res.question, search_results.k
                 )))
 
         results_and_answers = StudentSearchResultsAndAnswer(
