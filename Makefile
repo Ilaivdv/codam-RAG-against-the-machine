@@ -18,7 +18,7 @@ debug: install
 	@ uv run $(PY) -m pdb -m src -v
 
 install:
-	@ uv sync
+	@ uv sync --link-mode=copy
 	@ mkdir -p data/raw/
 	@ unzip -u $(VLLM_REPO) -d data/raw/
 
@@ -36,7 +36,7 @@ clean:
 	-find . -type d -name ".pytest_cache" -exec rm -rf {} +
 
 fclean: clean
-	-rm -rf data/*
+	-rm -rf data/* .venv/
 
 test: install
 	@ uv run $(PY) -m pytest -v tests
