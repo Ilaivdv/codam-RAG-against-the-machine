@@ -12,7 +12,7 @@ MYPYFLAGS = --warn-return-any \
 VLLM_REPO = vllm-0.10.1.zip
 
 run: install
-	@ uv run --quiet $(PY) -m src
+	@ uv run --quiet $(PY) -m src index 2000
 
 debug: install
 	@ uv run $(PY) -m pdb -m src -v
