@@ -3,6 +3,7 @@ from .retriever import init_retriever, retrieve_sources_from_query
 from .constants import RAW_DATA_PATH
 from .chunker import create_chunks
 from .errors import CLIError
+from .llm_model import LLM
 from pathlib import Path
 from bm25s import BM25
 from typing import Any
@@ -79,6 +80,8 @@ class CLI:
             raise CLIError("Got an empty query")
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
+        llm = LLM("Qwen/Qwen3-0.6B")
+        print(llm.process_prompt(query, res))
 
 
     def answer_dataset(
