@@ -22,18 +22,12 @@ def create_chunks(path: Path, max_chunk_size: int) -> None:
          RecursiveCharacterTextSplitter.from_language(
              language=Language.PYTHON,
              chunk_size=max_chunk_size,
-             chunk_overlap=max_chunk_size // 5)
+             chunk_overlap=max_chunk_size // 3)
          ),
-        (list(path.rglob("*.md")),
-         RecursiveCharacterTextSplitter.from_language(
-             language=Language.MARKDOWN,
-             chunk_size=max_chunk_size,
-             chunk_overlap=max_chunk_size // 5)
-         ),
-        (list(path.rglob("*.txt")),
+        (list(path.rglob("*.txt")) + list(path.rglob("*.md")),
          RecursiveCharacterTextSplitter(
              chunk_size=max_chunk_size,
-             chunk_overlap=max_chunk_size // 5)
+             chunk_overlap=max_chunk_size // 3)
          ),
         ])
     Path(PROCESSED_CHUNKS_PATH).mkdir(parents=True, exist_ok=True)
@@ -85,8 +79,9 @@ def _chunk_file_list(
         for f in path_list:
             text = f.read_text()
             for chunk in splitter.split_text(text):
-                start_index, end_index = (text.find(chunk), len(chunk))
-                if start_index < 0 or end_index < start_index:
+                start_index = text.find(chunk)
+                end_index = start_index + len(chunk)
+                if start_index < 0 or start_index > end_index:
                     continue
                 chunks.append(
                         MinimalSource(
