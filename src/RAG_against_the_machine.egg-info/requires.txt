@@ -1,8 +1,0 @@
-torch @ https://download.pytorch.org/whl/cpu/torch/
-langchain-text-splitters
-transformers
-bm25s[core]
-langchain
-pydantic
-fire
-tqdm
