@@ -1,5 +1,9 @@
 from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
-from .retriever import init_retriever, retrieve_sources_from_query
+from .retriever import (
+        init_retriever,
+        retrieve_sources_from_query,
+        retrieve_sources_from_dataset
+        )
 from .constants import RAW_DATA_PATH
 from .chunker import create_chunks
 from .errors import CLIError
@@ -44,28 +48,16 @@ class CLI:
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
-        if save_directory.startswith(("/", "~")):
+        if save_directory.startswith(("/", "~", "../")):
             raise CLIError(("Argument save_directory out of scope, "
                             f"got: {save_directory}"))
 
-        query_list: list[dict[str, str]] | None = []
-        query_retrievals: list[MinimalSearchResults] = []
-        retriever: BM25 = init_retriever()
-        with open(dataset_path, "rb") as f:
-            json_dict: dict[str, Any] = json.load(f)
-            if not (query_list := json_dict.get("rag_questions")):
-                raise CLIError(("Expected JSON list 'rag_questions' "
-                                f"at file path: {dataset_path}"))
-            for query in query_list:
-                query_retrievals.append(MinimalSearchResults(
-                    question_id=query["question_id"],
-                    question=query["question"],
-                    retrieved_sources=retrieve_sources_from_query(
-                        query["question"], k, retriever
-                        )
-                    ))
         search_result = StudentSearchResults(
-                search_results=query_retrievals,
+                search_results=retrieve_sources_from_dataset(
+                    k=k,
+                    dataset_path=dataset_path,
+                    retriever=init_retriever()
+                    ),
                 k=k)
         file_dest: str = os.path.join(
                 save_directory, os.path.split(dataset_path)[1])
@@ -85,12 +77,19 @@ class CLI:
 
     def answer_dataset(
             self,
-            student_search_results_path: Path,
+            student_search_results_path: str,
             save_directory: str) -> None:
-        ...
+        if not os.path.isfile(student_search_results_path) or not \
+                student_search_results_path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            "for student_search_results_path, "
+                            f"got: {student_search_results_path}"))
+        if save_directory.startswith(("/", "~", "../")):
+            raise CLIError(("Argument save_directory out of scope, "
+                            f"got: {save_directory}"))
 
     def evaluate(
             self,
-            student_search_results_path: Path,
+            student_search_results_path: str,
             dataset_path: str) -> None:
         ...
