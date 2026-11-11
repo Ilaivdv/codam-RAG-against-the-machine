@@ -16,10 +16,11 @@ class LLM:
         sources_dict = [s.model_dump() for s in sources]
         messages = [
                 {"role": "user", "content": (
-                    f"Your role is to reply in only ONE sentence the query: '{
-                    query}' using the retrieved sources: '{
-                    [t["content"] for t in sources_dict if t.get("content")]}'"
-                    )},
+                 f"Your role is to reply in only ONE sentence the query: '{
+                     query}' using the retrieved sources: '{
+                     [t["content"] for t in
+                         sources_dict if t.get("content")]}'"
+                 )},
                 ]
         text = self.tokenizer.apply_chat_template(
                 messages,
@@ -34,6 +35,6 @@ class LLM:
         generated_ids = [
                 output_ids[len(input_ids):] for input_ids, output_ids in zip(
                     model_inputs.input_ids, generated_ids)]
-        response = self.tokenizer.batch_decode(
+        response: str = self.tokenizer.batch_decode(
                 generated_ids, skip_special_tokens=True)[0]
         return response

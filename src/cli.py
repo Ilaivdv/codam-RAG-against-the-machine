@@ -83,7 +83,6 @@ class CLI:
         llm = LLM("Qwen/Qwen3-0.6B")
         print(llm.process_prompt(query, res))
 
-
     def answer_dataset(
             self,
             student_search_results_path: Path,
