@@ -1,6 +1,6 @@
-from src import PROCESSED_CHUNKS_PATH, CHUNKED_FILES_NAME
-from src.models import MinimalSource
-from src.errors import SearchError
+from .constants import PROCESSED_CHUNKS_PATH, CHUNKED_FILES_NAME
+from .models import MinimalSource
+from .errors import SearchError
 from pathlib import Path
 from typing import Any
 import bm25s

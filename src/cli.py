@@ -1,10 +1,7 @@
 from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
+from .retriever import init_retriever, retrieve_sources_from_query
 from .constants import RAW_DATA_PATH
-from src.index import (
-        create_chunks,
-        init_retriever,
-        retrieve_sources_from_query
-        )
+from .chunker import create_chunks
 from .errors import CLIError
 from pathlib import Path
 from bm25s import BM25
@@ -75,7 +72,14 @@ class CLI:
             f.write(search_result.model_dump_json(indent=2).encode())
 
     def answer(self, query: str, k: int) -> None:
-        ...
+        if not isinstance(k, int) or k <= 0:
+            raise CLIError(("Expected an integer greater "
+                            f"than 0 for argument k, got: {k}"))
+        if not query:
+            raise CLIError("Got an empty query")
+        res: list[MinimalSource] = retrieve_sources_from_query(
+                query, k, init_retriever())
+
 
     def answer_dataset(
             self,
