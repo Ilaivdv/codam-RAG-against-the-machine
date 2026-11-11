@@ -1,4 +1,9 @@
-from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
+from .models import (
+        MinimalSource,
+        MinimalAnswer,
+        StudentSearchResults,
+        StudentSearchResultsAndAnswer
+        )
 from .retriever import (
         init_retriever,
         retrieve_sources_from_query,
@@ -13,6 +18,9 @@ from bm25s import BM25
 from typing import Any
 import json
 import os
+
+
+_llm: LLM | None = None
 
 
 class CLI:
@@ -68,10 +76,13 @@ class CLI:
                             f"than 0 for argument k, got: {k}"))
         if not query:
             raise CLIError("Got an empty query")
+        global _llm
+
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
-        llm = LLM("Qwen/Qwen3-0.6B")
-        return llm.process_prompt(query, res)
+        if _llm is None:
+            _llm = LLM("Qwen/Qwen3-0.6B")
+        return _llm.process_prompt(query, res)
 
     def answer_dataset(
             self,
@@ -88,7 +99,24 @@ class CLI:
 
         search_results = StudentSearchResults.model_validate_json(
                 Path(student_search_results_path).read_bytes())
-        llm = LLM("Qwen/Qwen3-0.6B")
+        answers: list[MinimalAnswer] = []
+        for res in search_results.search_results:
+            answers.append(MinimalAnswer(
+                question_id=res.question_id,
+                question=res.question,
+                retrieved_sources=res.retrieved_sources,
+                answer=self.answer(
+                res.question, search_results.k
+                )))
+
+        results_and_answers = StudentSearchResultsAndAnswer(
+                search_results=answers,
+                k=search_results.k
+                )
+        file_dest: str = os.path.join(
+                save_directory, os.path.split(student_search_results_path)[1])
+        with open(file_dest, "wb") as f:
+            f.write(results_and_answers.model_dump_json(indent=2).encode())
 
     def evaluate(
             self,
