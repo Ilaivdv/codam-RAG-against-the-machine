@@ -23,7 +23,7 @@ class CLI:
                             f"between 0 and 2000, got: {max_chunk_size}"))
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
-    def search(self, query: str, k: int) -> None:
+    def search(self, query: str, k: int) -> list[MinimalSource]:
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
@@ -31,9 +31,7 @@ class CLI:
             raise CLIError("Got an empty query")
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
-        for s in res:
-            print((f"{s.file_path} [{s.first_character_index}:"
-                   f"{s.last_character_index}]"))
+        return res
 
     def search_dataset(
             self,
