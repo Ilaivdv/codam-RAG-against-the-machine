@@ -64,6 +64,7 @@ class CLI:
                 k=k)
         file_dest: str = os.path.join(
                 save_directory, os.path.split(dataset_path)[1])
+        Path(save_directory).mkdir(parents=True, exist_ok=True)
         with open(file_dest, "wb") as f:
             f.write(search_result.model_dump_json(indent=2).encode())
 
@@ -112,6 +113,7 @@ class CLI:
                 )
         file_dest: str = os.path.join(
                 save_directory, os.path.split(student_search_results_path)[1])
+        Path(save_directory).mkdir(parents=True, exist_ok=True)
         with open(file_dest, "wb") as f:
             f.write(results_and_answers.model_dump_json(indent=2).encode())
 
