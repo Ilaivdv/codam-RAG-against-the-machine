@@ -16,6 +16,16 @@ import json
 
 
 def init_retriever() -> bm25s.BM25:
+    """
+    Reads the corpus path to initialize a bm25s model for retrieval.
+
+    Returns:
+        BM25 - The initialized bm25s model
+
+    Raises:
+        SearchError - When corpus isn't initialized or doesn't exist
+    """
+
     corpus_path: Path = Path(PROCESSED_CHUNKS_PATH + CHUNKED_FILES_NAME)
     if not corpus_path.exists():
         raise SearchError(("Corpus not initialized! "
@@ -35,6 +45,18 @@ def retrieve_sources_from_query(
         k: int,
         retriever: bm25s.BM25
         ) -> list[MinimalSource]:
+    """
+    Given a query, retrieves the top-k most relevant sources.
+
+    Arguments:
+        query - The query used for retrieval
+        k - The amount of sources to retrieve
+        retriever - The model used for retrieval
+
+    Returns:
+        list[MinimalSource] - The retrieved sources
+    """
+
     sources_list: list[MinimalSource] = []
     query_tokens = bm25s.tokenize(query, show_progress=False)
     results = retriever.retrieve(
@@ -49,10 +71,26 @@ def retrieve_sources_from_query(
 
 
 def retrieve_sources_from_dataset(
-        k: int,
         dataset_path: str,
+        k: int,
         retriever: bm25s.BM25
         ) -> list[MinimalSearchResults]:
+    """
+    Given a dataset of queries,
+    retrieves the top-k most relevant sources for each item in the dataset.
+
+    Arguments:
+        dataset_path - A json file holding a valid RagDataset model
+        k - The amount of sources to retrieve
+        retriever - The model used for retrieval
+
+    Returns:
+        list[MinimalSource] - The retrieved sources
+
+    Raises:
+        SearchError - On invalid json file
+    """
+
     query_list: list[AnsweredQuestion | UnansweredQuestion] | None = []
     query_retrievals: list[MinimalSearchResults] = []
     with open(dataset_path, "rb") as f:

@@ -68,8 +68,8 @@ class CLI:
 
         search_result = StudentSearchResults(
                 search_results=retrieve_sources_from_dataset(
-                    k=k,
                     dataset_path=dataset_path,
+                    k=k,
                     retriever=init_retriever()
                     ),
                 k=k)
