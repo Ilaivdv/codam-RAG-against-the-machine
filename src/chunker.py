@@ -47,7 +47,7 @@ def _chunk_file_list(
 
     if os.path.exists(cache_file):
         cache = json.load(cache_file.open())
-        file_cached: bool = False
+        file_changed: bool = False
         for i in cache[:]:
             if not i.get("file_path") or not \
                     os.path.exists(str(i.get("file_path"))):
@@ -59,13 +59,13 @@ def _chunk_file_list(
             try:
                 MinimalSource.model_validate(i)
                 if os.path.getmtime(i["file_path"]) > i["last_index_time"]:
-                    file_cached = True
+                    file_changed = True
             except ValidationError:
-                file_cached = True
-            if file_cached:
+                file_changed = True
+            if file_changed:
                 modified_files.add(Path(i["file_path"]))
                 cache.remove(i)
-                file_cached = False
+                file_changed = False
         chunks = adapter.validate_python(cache)
         if not modified_files and cache:
             return adapter.dump_json(chunks, indent=2)
