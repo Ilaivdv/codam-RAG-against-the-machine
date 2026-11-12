@@ -5,6 +5,7 @@ from .models import MinimalSource
 from .errors import IndexError
 from pathlib import Path
 from typing import Any
+from tqdm import tqdm
 import json
 import os
 
@@ -16,7 +17,6 @@ def create_chunks(path: Path, max_chunk_size: int) -> None:
                           "the repository root or run make install "
                           "to extract the default corpus"))
 
-    # TODO Add tqdm progress bar here
     chunks: bytes = _chunk_file_list([
         (list(path.rglob("*.py")),
          RecursiveCharacterTextSplitter.from_language(
@@ -48,12 +48,11 @@ def _chunk_file_list(
     if os.path.exists(cache_file):
         cache = json.load(cache_file.open())
         file_changed: bool = False
-        for i in cache[:]:
+        for i in tqdm(cache[:], desc="Parsing cache", colour="blue"):
             if not i.get("file_path") or not \
                     os.path.exists(str(i.get("file_path"))):
-                # TODO Add warning to logs
-                print(("Found chunk with missing/invalid file_path, "
-                       "rebuilding cache"))
+                tqdm.write(("Found chunk with missing/invalid file_path, "
+                            "rebuilding the corpus"))
                 cache.clear()
                 break
             try:
@@ -76,7 +75,9 @@ def _chunk_file_list(
                 path_list = list(modified_files)
             else:
                 continue
-        for f in path_list:
+        progress_bar = tqdm(path_list, colour="blue")
+        for f in progress_bar:
+            progress_bar.set_description(f"Chunking file: {f.name}")
             text = f.read_text()
             for chunk in splitter.split_text(text):
                 start_index = text.find(chunk)
