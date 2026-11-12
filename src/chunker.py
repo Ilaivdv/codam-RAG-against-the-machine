@@ -51,8 +51,8 @@ def _chunk_file_list(
         for i in tqdm(cache[:], desc="Parsing cache", colour="blue"):
             if not i.get("file_path") or not \
                     os.path.exists(str(i.get("file_path"))):
-                tqdm.write(("Found chunk with missing/invalid file_path, "
-                            "rebuilding the corpus"))
+                tqdm.write(("\033[33mWARNING: Found chunk with missing/invalid"
+                            " file_path, rebuilding the corpus\033[39m"))
                 cache.clear()
                 break
             try:
@@ -75,7 +75,7 @@ def _chunk_file_list(
                 path_list = list(modified_files)
             else:
                 continue
-        progress_bar = tqdm(path_list, colour="blue")
+        progress_bar = tqdm(path_list, colour="blue", leave=False)
         for f in progress_bar:
             progress_bar.set_description(f"Chunking file: {f.name}")
             text = f.read_text()
