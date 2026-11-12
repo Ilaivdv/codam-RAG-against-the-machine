@@ -80,7 +80,7 @@ class CLI:
                 query, k, init_retriever())
         if _llm is None:
             _llm = LLM("Qwen/Qwen3-0.6B")
-        return _llm.process_prompt(query, res)
+        return _llm.answer_prompt(query, res)
 
     def answer_dataset(
             self,

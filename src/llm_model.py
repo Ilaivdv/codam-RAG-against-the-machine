@@ -4,15 +4,26 @@ from typing import Any
 
 class LLM:
     def __init__(self, model_name: str) -> None:
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from transformers import (
+                AutoModelForCausalLM,
+                AutoTokenizer,
+                TextStreamer,
+                set_seed
+                )
+        set_seed(4242)
         self.model: Any = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 dtype="auto",
                 device_map="cpu",
                 )
         self.tokenizer: Any = AutoTokenizer.from_pretrained(model_name)
+        self.streamer: TextStreamer = TextStreamer(
+                self.tokenizer,
+                skip_prompt=True,
+                skip_special_tokens=True
+                )
 
-    def process_prompt(self, query: str, sources: list[MinimalSource]) -> str:
+    def answer_prompt(self, query: str, sources: list[MinimalSource]) -> str:
         sources_dict = [s.model_dump() for s in sources]
         messages = [
                 {"role": "user", "content": (
@@ -31,10 +42,18 @@ class LLM:
         model_inputs = self.tokenizer(
                 [text], return_tensors="pt").to(self.model.device)
 
-        generated_ids = self.model.generate(**model_inputs, max_new_tokens=512)
+        print("\033[1A\x1b[2K\033[32m", end="")
+        print(f"\033[30m>> {query} <<\033[39m")
+        print("\n\033[31m>> \033[39m", end="")
+        generated_ids = self.model.generate(
+                **model_inputs,
+                streamer=self.streamer,
+                max_new_tokens=50
+                )
         generated_ids = [
                 output_ids[len(input_ids):] for input_ids, output_ids in zip(
                     model_inputs.input_ids, generated_ids)]
         response: str = self.tokenizer.batch_decode(
                 generated_ids, skip_special_tokens=True)[0]
+        print("\033[1A\x1b[2K\033[32m", end="")
         return response
