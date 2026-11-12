@@ -3,7 +3,17 @@ from typing import Any
 
 
 class LLM:
+    """
+    LLM class holding the initialized model and tokenizer with a method for
+    answer generation.
+    """
+
     def __init__(self, model_name: str) -> None:
+        """
+        Initializes an LLM model with it's required tokenizer and streamer
+        for live output generation.
+        """
+
         from transformers import (
                 AutoModelForCausalLM,
                 AutoTokenizer,
@@ -24,6 +34,18 @@ class LLM:
                 )
 
     def answer_prompt(self, query: str, sources: list[MinimalSource]) -> str:
+        """
+        Given a query and its top-k sources, feed it to the initialized model
+        and generate an answer with live feedback.
+
+        Arguments:
+            query - A single query to give the model
+            sources - The retrieved list of sources for the query
+
+        Returns:
+            str - The generated answer to the query
+        """
+
         sources_dict = [s.model_dump() for s in sources]
         messages = [
                 {"role": "user", "content": (
