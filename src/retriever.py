@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from .errors import SearchError
 from pathlib import Path
 from typing import Any
+from tqdm import tqdm
 import bm25s
 import json
 
@@ -61,7 +62,7 @@ def retrieve_sources_from_dataset(
         except ValidationError:
             raise SearchError(("Expected JSON list 'rag_questions' "
                                f"at file path: {dataset_path}"))
-        for query in query_list:
+        for query in tqdm(query_list, desc="Creating MinimalSearchResults"):
             query_retrievals.append(MinimalSearchResults(
                 question_id=query.question_id,
                 question=query.question,
