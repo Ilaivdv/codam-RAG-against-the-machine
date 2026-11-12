@@ -57,7 +57,7 @@ def _chunk_file_list(
     Splits given file lists into chunks using the paired
     `RecursiveCharacterTextSplitter` and makes sure everything follows
     the json schema defined in `src/models.py`.
-    
+
     The built in caching decreases indexing time majorly on small changes.
     When a missing file path is found in the corpus, it will re-index to
     ensure a valid and safe output.
@@ -66,7 +66,7 @@ def _chunk_file_list(
     Arguments:
         to_split - A list of tuple pairs containing file paths of one type with
             it's equivalent splitter
-    
+
     Returns:
         bytes - The json representation of a list of MinimalSource models
     """
