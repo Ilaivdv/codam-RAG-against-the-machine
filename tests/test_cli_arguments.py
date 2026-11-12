@@ -1,5 +1,5 @@
 from json import JSONDecodeError
-from src.errors import CLIError
+from src.errors import CLIError, SearchError
 from src.cli import CLI
 import pytest
 
@@ -51,5 +51,10 @@ def test_empty_dataset_json() -> None:
 
 
 def test_invalid_dataset_json_key() -> None:
-    with pytest.raises(CLIError, match=r".* JSON .*"):
+    with pytest.raises(SearchError, match=r".* JSON .*"):
         CLI().search_dataset("tests/dummy.json", 5, "data")
+
+
+def test_answer_empty_query() -> None:
+    with pytest.raises(CLIError):
+        CLI().search("", 5)
