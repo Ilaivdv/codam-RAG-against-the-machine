@@ -1,8 +1,8 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
-from src import PROCESSED_CHUNKS_PATH, CHUNKED_FILES_NAME
+from .constants import PROCESSED_CHUNKS_PATH, CHUNKED_FILES_NAME
 from pydantic import TypeAdapter, ValidationError
-from src.models import MinimalSource
-from src.errors import IndexError
+from .models import MinimalSource
+from .errors import IndexError
 from pathlib import Path
 from typing import Any
 import json

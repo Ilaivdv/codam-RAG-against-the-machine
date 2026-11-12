@@ -9,6 +9,13 @@ class MinimalSource(BaseModel):
     last_character_index: int
     last_index_time: float
 
+    def __repr__(self) -> str:
+        return (f"{self.file_path} [{self.first_character_index}:"
+                f"{self.last_character_index}]")
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
 
 class UnansweredQuestion(BaseModel):
     question_id: str = Field(default_factory=lambda: str(uuid.uuid4()))

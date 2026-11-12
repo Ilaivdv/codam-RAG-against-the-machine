@@ -1,16 +1,23 @@
-from .models import MinimalSource, MinimalSearchResults, StudentSearchResults
-from .constants import RAW_DATA_PATH
-from src.index import (
-        create_chunks,
-        init_retriever,
-        retrieve_sources_from_query
+from .models import (
+        MinimalSource,
+        MinimalAnswer,
+        StudentSearchResults,
+        StudentSearchResultsAndAnswer
         )
+from .retriever import (
+        init_retriever,
+        retrieve_sources_from_query,
+        retrieve_sources_from_dataset
+        )
+from .constants import RAW_DATA_PATH
+from .chunker import create_chunks
 from .errors import CLIError
+from .llm_model import LLM
 from pathlib import Path
-from bm25s import BM25
-from typing import Any
-import json
 import os
+
+
+_llm: LLM | None = None
 
 
 class CLI:
@@ -21,7 +28,7 @@ class CLI:
                             f"between 0 and 2000, got: {max_chunk_size}"))
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
-    def search(self, query: str, k: int) -> None:
+    def search(self, query: str, k: int) -> list[MinimalSource]:
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
@@ -29,9 +36,7 @@ class CLI:
             raise CLIError("Got an empty query")
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
-        for s in res:
-            print((f"{s.file_path} [{s.first_character_index}:"
-                   f"{s.last_character_index}]"))
+        return res
 
     def search_dataset(
             self,
@@ -46,45 +51,72 @@ class CLI:
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
-        if save_directory.startswith(("/", "~")):
+        if save_directory.startswith(("/", "~", "../")):
             raise CLIError(("Argument save_directory out of scope, "
                             f"got: {save_directory}"))
 
-        query_list: list[dict[str, str]] | None = []
-        query_retrievals: list[MinimalSearchResults] = []
-        retriever: BM25 = init_retriever()
-        with open(dataset_path, "rb") as f:
-            json_dict: dict[str, Any] = json.load(f)
-            if not (query_list := json_dict.get("rag_questions")):
-                raise CLIError(("Expected JSON list 'rag_questions' "
-                                f"at file path: {dataset_path}"))
-            for query in query_list:
-                query_retrievals.append(MinimalSearchResults(
-                    question_id=query["question_id"],
-                    question=query["question"],
-                    retrieved_sources=retrieve_sources_from_query(
-                        query["question"], k, retriever
-                        )
-                    ))
         search_result = StudentSearchResults(
-                search_results=query_retrievals,
+                search_results=retrieve_sources_from_dataset(
+                    k=k,
+                    dataset_path=dataset_path,
+                    retriever=init_retriever()
+                    ),
                 k=k)
         file_dest: str = os.path.join(
                 save_directory, os.path.split(dataset_path)[1])
         with open(file_dest, "wb") as f:
             f.write(search_result.model_dump_json(indent=2).encode())
 
-    def answer(self, query: str, k: int) -> None:
-        ...
+    def answer(self, query: str, k: int) -> str:
+        if not isinstance(k, int) or k <= 0:
+            raise CLIError(("Expected an integer greater "
+                            f"than 0 for argument k, got: {k}"))
+        if not query:
+            raise CLIError("Got an empty query")
+        global _llm
+
+        res: list[MinimalSource] = retrieve_sources_from_query(
+                query, k, init_retriever())
+        if _llm is None:
+            _llm = LLM("Qwen/Qwen3-0.6B")
+        return _llm.process_prompt(query, res)
 
     def answer_dataset(
             self,
-            student_search_results_path: Path,
+            student_search_results_path: str,
             save_directory: str) -> None:
-        ...
+        if not os.path.isfile(student_search_results_path) or not \
+                student_search_results_path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            "for student_search_results_path, "
+                            f"got: {student_search_results_path}"))
+        if save_directory.startswith(("/", "~", "../")):
+            raise CLIError(("Argument save_directory out of scope, "
+                            f"got: {save_directory}"))
+
+        search_results = StudentSearchResults.model_validate_json(
+                Path(student_search_results_path).read_bytes())
+        answers: list[MinimalAnswer] = []
+        for res in search_results.search_results:
+            answers.append(MinimalAnswer(
+                question_id=res.question_id,
+                question=res.question,
+                retrieved_sources=res.retrieved_sources,
+                answer=self.answer(
+                    res.question, search_results.k
+                )))
+
+        results_and_answers = StudentSearchResultsAndAnswer(
+                search_results=answers,
+                k=search_results.k
+                )
+        file_dest: str = os.path.join(
+                save_directory, os.path.split(student_search_results_path)[1])
+        with open(file_dest, "wb") as f:
+            f.write(results_and_answers.model_dump_json(indent=2).encode())
 
     def evaluate(
             self,
-            student_search_results_path: Path,
+            student_search_results_path: str,
             dataset_path: str) -> None:
         ...

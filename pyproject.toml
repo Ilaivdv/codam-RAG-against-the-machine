@@ -1,17 +1,28 @@
 [project]
 name = "RAG-against-the-machine"
-authors = [ { name = "Ilai" } ]
-version = "0.0.1"
+authors = [ { name = "Ilai Van der Veldt" } ]
+version = "1.0.0"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 dependencies = [
-	"pydantic",
-	"langchain",
 	"langchain-text-splitters",
+	"transformers",
 	"bm25s[core]",
+	"accelerate",
+	"langchain",
+	"pydantic",
+	"torch",
 	"fire",
 	"tqdm"
 ]
+
+[[tool.uv.index]]
+name = "torch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "torch-cpu" }
 
 [dependency-groups]
 dev = [
