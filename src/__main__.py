@@ -4,7 +4,7 @@ prints logo and initializes fire for argument parsing.
 """
 
 
-from src.errors import ValidationError
+from src.errors import RagError
 from json import JSONDecodeError
 from .cli import CLI
 import fire
@@ -16,7 +16,7 @@ def main() -> None:
         with open("src/logo.txt") as f:
             print("\033[31m" + f.read() + "\033[39m")
         fire.Fire(CLI)
-    except (ValidationError, JSONDecodeError) as e:
+    except (RagError, JSONDecodeError) as e:
         print(e)
 
 

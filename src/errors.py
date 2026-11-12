@@ -1,14 +1,14 @@
-class ValidationError(ValueError):
+class RagError(ValueError):
     pass
 
 
-class CLIError(ValidationError):
+class CLIError(RagError):
     pass
 
 
-class IndexError(ValidationError):
+class IndexError(RagError):
     pass
 
 
-class SearchError(ValidationError):
+class SearchError(RagError):
     pass
