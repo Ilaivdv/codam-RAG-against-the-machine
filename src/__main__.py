@@ -2,7 +2,6 @@ from src.errors import CLIError, IndexError, SearchError
 from json import JSONDecodeError
 from .cli import CLI
 import fire
-import os
 
 
 if __name__ == "__main__":
