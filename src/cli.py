@@ -22,6 +22,8 @@ _llm: LLM | None = None
 
 class CLI:
     def index(self, max_chunk_size: int) -> None:
+        """ Ingest data/raw/ and build the index under data/processed/. """
+
         if not isinstance(max_chunk_size, int) or not \
                 0 < max_chunk_size <= 2000:
             raise CLIError(("Expected integer value max_chunk_size "
@@ -29,6 +31,8 @@ class CLI:
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
 
     def search(self, query: str, k: int) -> list[MinimalSource]:
+        """ Return the top-k sources for a single query. """
+
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
@@ -44,6 +48,11 @@ class CLI:
             k: int,
             save_directory: str
             ) -> None:
+        """
+        Run search over a whole dataset and write a
+        StudentSearchResults JSON file.
+        """
+
         if not os.path.isfile(dataset_path) or not \
                 dataset_path.endswith(".json"):
             raise CLIError(("Expected an existing JSON file "
@@ -69,6 +78,8 @@ class CLI:
             f.write(search_result.model_dump_json(indent=2).encode())
 
     def answer(self, query: str, k: int) -> str:
+        """ Answer a single query using the retrieved context. """
+
         if not isinstance(k, int) or k <= 0:
             raise CLIError(("Expected an integer greater "
                             f"than 0 for argument k, got: {k}"))
@@ -86,6 +97,11 @@ class CLI:
             self,
             student_search_results_path: str,
             save_directory: str) -> None:
+        """
+        Generate answers for a dataset, producing a
+        StudentSearchResultsAndAnswer JSON file.
+        """
+
         if not os.path.isfile(student_search_results_path) or not \
                 student_search_results_path.endswith(".json"):
             raise CLIError(("Expected an existing JSON file "
@@ -121,4 +137,5 @@ class CLI:
             self,
             student_search_results_path: str,
             dataset_path: str) -> None:
+        """ Reports a recall@k against a ground-truth dataset. """
         ...
