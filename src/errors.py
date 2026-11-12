@@ -1,4 +1,5 @@
-class RagError(ValueError):
+class RagError(Exception):
+    """ Custom exception class for verbosity. """
     pass
 
 
