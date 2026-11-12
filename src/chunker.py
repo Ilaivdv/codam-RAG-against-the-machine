@@ -11,6 +11,21 @@ import os
 
 
 def create_chunks(path: Path, max_chunk_size: int) -> None:
+    """
+    Splits files into .py files and a groups .txt and .md files.
+    Initializes `RecursiveCharacterTextSplitter` with the equivalent language
+    and gives it to `_chunk_file_list` to write the results to a file path
+    defined in `src/constants.py`.
+
+
+    Arguments:
+        path - Directory to parse all files from
+        max_chunk_size - Max size a files chunk can be
+
+    Raises:
+        IndexError - On invalid path or uninitialized corpus
+    """
+
     if not path.exists():
         raise IndexError((f"'{path}' doesn't exist.\n"
                           "Possible fixes: run the program from "
@@ -38,6 +53,24 @@ def create_chunks(path: Path, max_chunk_size: int) -> None:
 def _chunk_file_list(
         to_split: list[tuple[list[Path], RecursiveCharacterTextSplitter]],
         ) -> bytes:
+    """
+    Splits given file lists into chunks using the paired
+    `RecursiveCharacterTextSplitter` and makes sure everything follows
+    the json schema defined in `src/models.py`.
+    
+    The built in caching decreases indexing time majorly on small changes.
+    When a missing file path is found in the corpus, it will re-index to
+    ensure a valid and safe output.
+
+
+    Arguments:
+        to_split - A list of tuple pairs containing file paths of one type with
+            it's equivalent splitter
+    
+    Returns:
+        bytes - The json representation of a list of MinimalSource models
+    """
+
     chunks: list[MinimalSource] = []
     adapter = TypeAdapter(list[MinimalSource])
 
