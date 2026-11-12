@@ -21,6 +21,8 @@ _llm: LLM | None = None
 
 
 class CLI:
+    """ CLI class to handle argument parsing using fire. """
+
     def index(self, max_chunk_size: int) -> None:
         """ Ingest data/raw/ and build the index under data/processed/. """
 
