@@ -7,7 +7,7 @@ class LLM:
         from transformers import (
                 AutoModelForCausalLM,
                 AutoTokenizer,
-                TextIteratorStreamer
+                TextStreamer
                 )
         self.model: Any = AutoModelForCausalLM.from_pretrained(
                 model_name,
@@ -15,6 +15,11 @@ class LLM:
                 device_map="cpu",
                 )
         self.tokenizer: Any = AutoTokenizer.from_pretrained(model_name)
+        self.streamer: TextStreamer = TextStreamer(
+                self.tokenizer,
+                skip_prompt=True,
+                skip_special_tokens=True
+                )
 
     def process_prompt(self, query: str, sources: list[MinimalSource]) -> str:
         sources_dict = [s.model_dump() for s in sources]
@@ -35,10 +40,15 @@ class LLM:
         model_inputs = self.tokenizer(
                 [text], return_tensors="pt").to(self.model.device)
 
-        generated_ids = self.model.generate(**model_inputs, max_new_tokens=50)
+        generated_ids = self.model.generate(
+                **model_inputs,
+                streamer=self.streamer,
+                max_new_tokens=50
+                )
         generated_ids = [
                 output_ids[len(input_ids):] for input_ids, output_ids in zip(
                     model_inputs.input_ids, generated_ids)]
         response: str = self.tokenizer.batch_decode(
                 generated_ids, skip_special_tokens=True)[0]
+        print("\033[1A\x1b[2K", end="")
         return response
