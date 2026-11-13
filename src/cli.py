@@ -140,4 +140,13 @@ class CLI:
             student_search_results_path: str,
             dataset_path: str) -> None:
         """ Reports a recall@k against a ground-truth dataset. """
-        ...
+        if not os.path.isfile(student_search_results_path) or not \
+                student_search_results_path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            "for student_search_results_path, "
+                            f"got: {student_search_results_path}"))
+        if not os.path.isfile(dataset_path) or not \
+                dataset_path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            "for dataset_path, "
+                            f"got: {dataset_path}"))
