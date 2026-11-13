@@ -10,6 +10,7 @@ from .retriever import (
         retrieve_sources_from_query,
         retrieve_sources_from_dataset
         )
+from .evaluator import display_recall
 from .chunker import create_chunks
 from .errors import CLIError
 from .llm_model import LLM
@@ -154,3 +155,4 @@ class CLI:
             raise CLIError(("Expected an existing JSON file "
                             "for dataset_path, "
                             f"got: {dataset_path}"))
+        display_recall(Path(student_search_results_path), Path(dataset_path))
