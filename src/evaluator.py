@@ -103,7 +103,7 @@ def _get_iou_span(span_x: MinimalSource, span_y: MinimalSource) -> float:
     Returns:
         float - The overlap ranging from 0.0 - 1.0 with a minimum threshold of
             0.05.
-    """    
+    """
 
     intersection_len = max(
             0,
