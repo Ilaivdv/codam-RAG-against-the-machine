@@ -11,6 +11,7 @@ from .retriever import (
         retrieve_sources_from_dataset
         )
 from .evaluator import display_recall
+from pydantic import ValidationError
 from .chunker import create_chunks
 from .errors import CLIError
 from .llm_model import LLM
@@ -116,8 +117,11 @@ class CLI:
             raise CLIError(("Argument save_directory out of scope, "
                             f"got: {save_directory}"))
 
-        search_results = StudentSearchResults.model_validate_json(
-                Path(student_search_results_path).read_bytes())
+        try:
+            search_results = StudentSearchResults.model_validate_json(
+                    Path(student_search_results_path).read_bytes())
+        except ValidationError as e:
+            raise CLIError(f"Got invalid student_search_results_path: {e}")
         answers: list[MinimalAnswer] = []
         for res in search_results.search_results:
             answers.append(MinimalAnswer(
