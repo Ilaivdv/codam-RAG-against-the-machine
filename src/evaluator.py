@@ -26,8 +26,6 @@ def display_recall(student_sources: Path, reference_sources: Path) -> None:
                 if isinstance(s, AnsweredQuestion)
                 ]
         if not reference_answered:
-            # print(reference_model)
-            print(reference_answered)
             raise EvalError(
                     f"No AnsweredQuestion models found in dataset_path")
 
@@ -41,39 +39,34 @@ def display_recall(student_sources: Path, reference_sources: Path) -> None:
                 }
 
         for k in _RECALL_K_LIST:
-            for uuid in references_by_id.keys():
+            for uuid in sources_by_id.keys():
+                print(f"{sources_by_id[uuid]}\n\n{references_by_id[uuid]}\n")
                 try:
-                    recall_list = [
-                            _get_recall_at_k(set(student), set(reference))
-                            for student, reference in zip(
-                                sources_by_id.get(uuid),
-                                references_by_id.get(uuid))
-                            ]
-                    print(recall_list)
-                except Exception:
-                    pass
+                    valid_recall_list = len([
+                        s for s in sources_by_id[uuid]
+                        if _is_valid_source(s, references_by_id[uuid][0])
+                        ])
+                except Exception as e:
+                    print(e)
+
+
+                break
+            break
         # recall = _get_iou_span(student_model, reference_model)
         # print(recall)
 
 
-def _get_recall_at_k(
-        student_sources: set[MinimalSource],
-        reference_sources: set[MinimalSource]) -> float:
-    student_paths = set([p.file_path for p in student_sources])
-    reference_paths = set([p.file_path for p in reference_sources])
-
-    relevant_top_k = student_paths & reference_paths
-    for source in list(relevant_top_k):
-        if not _get_iou_span(
-                next((
-                    s for s in student_sources if s.file_path == source
-                    ), None),
-                next((
-                    s for s in reference_sources if s.file_path == source
-                    ), None)
-                ):
+def _is_valid_source(
+        student_sources: list[MinimalSource],
+        reference_source: MinimalSource) -> bool:
+    relevant_top_k = [
+            p for p in student_sources if
+            p.file_path == reference_source.file_path
+            ]
+    for source in relevant_top_k[:]:
+        if not _get_iou_span(source, reference_source):
             relevant_top_k.remove(source)
-    return len(relevant_top_k) / len(reference_sources)
+    return True if relevant_top_k else False
 
 
 def _get_iou_span(span_x: MinimalSource, span_y: MinimalSource) -> float:
