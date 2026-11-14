@@ -1,3 +1,4 @@
+from .constants import RAW_DATA_PATH, PROCESSED_CHUNKS_PATH
 from .models import (
         MinimalSource,
         MinimalAnswer,
@@ -9,7 +10,7 @@ from .retriever import (
         retrieve_sources_from_query,
         retrieve_sources_from_dataset
         )
-from .constants import RAW_DATA_PATH
+from .evaluator import display_recall
 from .chunker import create_chunks
 from .errors import CLIError
 from .llm_model import LLM
@@ -31,6 +32,8 @@ class CLI:
             raise CLIError(("Expected integer value max_chunk_size "
                             f"between 0 and 2000, got: {max_chunk_size}"))
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
+        print(f"\033[32mSuccesfully indexed the corpus to {RAW_DATA_PATH +
+              PROCESSED_CHUNKS_PATH}")
 
     def search(self, query: str, k: int) -> list[MinimalSource]:
         """ Return the top-k sources for a single query. """
@@ -134,10 +137,22 @@ class CLI:
         Path(save_directory).mkdir(parents=True, exist_ok=True)
         with open(file_dest, "wb") as f:
             f.write(results_and_answers.model_dump_json(indent=2).encode())
+        print(f"\033[32mSuccesfully wrote all generated answers under {
+              save_directory}")
 
     def evaluate(
             self,
             student_search_results_path: str,
             dataset_path: str) -> None:
         """ Reports a recall@k against a ground-truth dataset. """
-        ...
+        if not os.path.isfile(student_search_results_path) or not \
+                student_search_results_path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            "for student_search_results_path, "
+                            f"got: {student_search_results_path}"))
+        if not os.path.isfile(dataset_path) or not \
+                dataset_path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            "for dataset_path, "
+                            f"got: {dataset_path}"))
+        display_recall(Path(student_search_results_path), Path(dataset_path))

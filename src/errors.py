@@ -13,3 +13,7 @@ class IndexError(RagError):
 
 class SearchError(RagError):
     pass
+
+
+class EvalError(RagError):
+    pass
