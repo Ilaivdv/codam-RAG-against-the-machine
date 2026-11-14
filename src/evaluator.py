@@ -14,6 +14,17 @@ _RECALL_K_LIST = [1, 3, 5, 10]
 
 
 def display_recall(student_sources: Path, reference_sources: Path) -> None:
+    """
+    Given a student's sources and a ground-truth dataset,
+    calculates the recall@k for each answered query.
+
+    Arguments:
+        student_sources - The path to the student's sources
+        reference_sources - The path to the ground-truth sources
+
+    Raises:
+        EvalError - On invalid json formatting/file
+    """
     try:
         student_model = StudentSearchResults.model_validate_json(
                 student_sources.read_bytes())
@@ -65,6 +76,15 @@ def display_recall(student_sources: Path, reference_sources: Path) -> None:
 def _is_valid_source(
         student_sources: list[MinimalSource],
         reference_source: MinimalSource) -> bool:
+    """
+    Given `student_sources`,
+    checks if both the file_path and character indices overlap with the
+    `reference_source`
+
+    Returns:
+        bool - Whether it meets the overlap threshold
+    """
+
     relevant_top_k = [
             p for p in student_sources if
             p.file_path == reference_source.file_path
@@ -76,6 +96,15 @@ def _is_valid_source(
 
 
 def _get_iou_span(span_x: MinimalSource, span_y: MinimalSource) -> float:
+    """
+    Gets the intersection over union span of the 2 sources based on
+    character indices.
+
+    Returns:
+        float - The overlap ranging from 0.0 - 1.0 with a minimum threshold of
+            0.05.
+    """    
+
     intersection_len = max(
             0,
             min(span_x.last_character_index, span_y.last_character_index) -
@@ -90,4 +119,4 @@ def _get_iou_span(span_x: MinimalSource, span_y: MinimalSource) -> float:
         return 0.0
 
     res = intersection_len / union_len
-    return res if res > 0.05 else 0
+    return res if res > 0.05 else 0.0
