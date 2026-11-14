@@ -14,10 +14,10 @@ class MinimalSource(BaseModel):
     """
 
     file_path: str
-    content: str
+    content: str = Field(default="")
     first_character_index: int
     last_character_index: int
-    last_index_time: float
+    last_index_time: float = Field(default=0.0)
 
     def __repr__(self) -> str:
         return (f"{self.file_path} [{self.first_character_index}:"
