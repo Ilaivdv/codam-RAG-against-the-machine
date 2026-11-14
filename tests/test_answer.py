@@ -1,5 +1,4 @@
-from json import JSONDecodeError
-from src.errors import CLIError, SearchError
+from src.errors import CLIError
 from src.cli import CLI
 import pytest
 
