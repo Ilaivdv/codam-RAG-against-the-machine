@@ -7,6 +7,7 @@ from .models import (
         )
 from .errors import EvalError
 from pathlib import Path
+from tqdm import tqdm
 
 
 _RECALL_K_LIST = [1, 3, 5, 10]
@@ -27,7 +28,8 @@ def display_recall(student_sources: Path, reference_sources: Path) -> None:
                 ]
         if not reference_answered:
             raise EvalError(
-                    f"No AnsweredQuestion models found in dataset_path")
+                    f"No AnsweredQuestion models found at path: {
+                     reference_sources.as_posix()}")
 
         sources_by_id = {
                 res.question_id: res.retrieved_sources
@@ -38,22 +40,26 @@ def display_recall(student_sources: Path, reference_sources: Path) -> None:
                 for res in reference_answered
                 }
 
-        for k in _RECALL_K_LIST:
-            for uuid in sources_by_id.keys():
-                print(f"{sources_by_id[uuid]}\n\n{references_by_id[uuid]}\n")
+        recall_at_k: dict[int, float] = {}
+        for k in tqdm(_RECALL_K_LIST, desc="Calculating recall..."):
+            valid_recall_len = 0
+            for uuid, s in sources_by_id.items():
                 try:
-                    valid_recall_list = len([
-                        s for s in sources_by_id[uuid]
-                        if _is_valid_source(s, references_by_id[uuid][0])
-                        ])
+                    valid_recall_len += _is_valid_source(
+                            s[:k], references_by_id[uuid][0])
                 except Exception as e:
                     print(e)
+                else:
+                    recall_at_k[k] = (
+                            valid_recall_len / len(references_by_id) * 100)
 
-
-                break
-            break
-        # recall = _get_iou_span(student_model, reference_model)
-        # print(recall)
+        print("\n\033[31m\x1b[1m===RECALL@K METRICS===\033[39m\n")
+        print((
+            f"\033[34mFound {len(sources_by_id)}/{len(references_by_id)} "
+            "queries\033[39m\n"
+               ))
+        for k, v in recall_at_k.items():
+            print(f"\033[30m> Recall@{k}\033[32m\t{v:.1f}%")
 
 
 def _is_valid_source(
@@ -76,11 +82,11 @@ def _get_iou_span(span_x: MinimalSource, span_y: MinimalSource) -> float:
             max(span_x.first_character_index, span_y.first_character_index)
             )
 
-    if union_len := (
-            (span_x.last_character_index - span_x.first_character_index) +
-            (span_y.last_character_index - span_y.first_character_index) -
-            intersection_len
-            ) == 0:
+    if not (union_len := (
+        (span_x.last_character_index - span_x.first_character_index) +
+        (span_y.last_character_index - span_y.first_character_index) -
+        intersection_len
+            )):
         return 0.0
 
     res = intersection_len / union_len
