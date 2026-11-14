@@ -27,20 +27,20 @@ make fclean      # Removes artifacts, data/ and .venv
 ### Running The Module
 These are the steps for running the pipeline:
 
-1. Index the corpus
+1. **Index the corpus:** 
 To chunk and index the corpus, run either `make run` or `uv run -m src index --max_chunk_size=<int>`
 
-2. Search the corpus and retrieve top-k sources
+2. **Search the corpus and retrieve top-k sources:** 
 For a single search, use `uv run -m src search --query=<str> --k=<int>`.
 To run a search over a JSON dataset of queries and save it to a JSON file, 
 run `uv run -m src search_dataset --dataset_path=<str> --k=<int> --save_directory=<str>`
 
-3. Generate an answer to a query
+3. **Generate an answer to a query:** 
 Getting an llm generated answer from a query can be done either for a single query using
 `uv run -m src answer --query<str> --k=<int>`, or with a given JSON of queries and sources made from
 `search_dataset` using `uv run -m src answer_dataset --student_search_results_path=<str> --save_directory=<str>`
 
-4. Evaluate retrieved sources with a recall@k metric (optional)
+4. **Evaluate retrieved sources with a recall@k metric (optional):** 
 Evaluate the retrieved sources with `uv run -m src evaluate --student_search_results_path=<str> --dataset_path=<str>`.
 This will compare the created `StudentSearchResults` against the ground-truth dataset to calculate its recall@k.
 
