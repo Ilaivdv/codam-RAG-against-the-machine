@@ -10,19 +10,19 @@ MYPYFLAGS = --warn-return-any \
 	--disallow-subclassing-any
 
 VLLM_REPO = vllm-0.10.1.zip
-DATASET_PATH = datasets_public/public
+DATASET_PATH = datasets_public
 OUTPUT_PATH = data/output/data_sets
 
 run: install
 	@ uv run --quiet $(PY) -m src index 2000
-	@ uv run --quiet $(PY) -m src search_dataset $(DATASET_PATH)/UnansweredQuestions/dataset_code_public.json 5 $(OUTPUT_PATH)/code/
-	@ uv run --quiet $(PY) -m src search_dataset $(DATASET_PATH)/UnansweredQuestions/dataset_docs_public.json 5 $(OUTPUT_PATH)/docs/
+	@ uv run --quiet $(PY) -m src search_dataset $(DATASET_PATH)/public/UnansweredQuestions/dataset_code_public.json 5 $(OUTPUT_PATH)/code/
+	@ uv run --quiet $(PY) -m src search_dataset $(DATASET_PATH)/public/UnansweredQuestions/dataset_docs_public.json 5 $(OUTPUT_PATH)/docs/
 
 eval-docs:
-	@ uv run --quiet $(PY) -m src evaluate $(OUTPUT_PATH)/docs/dataset_docs_public.json $(DATASET_PATH)/AnsweredQuestions/dataset_docs_public.json
+	@ uv run --quiet $(PY) -m src evaluate $(OUTPUT_PATH)/docs/dataset_docs_public.json $(DATASET_PATH)/public/AnsweredQuestions/dataset_docs_public.json
 
 eval-code:
-	@ uv run --quiet $(PY) -m src evaluate $(OUTPUT_PATH)/code/dataset_code_public.json $(DATASET_PATH)/AnsweredQuestions/dataset_code_public.json
+	@ uv run --quiet $(PY) -m src evaluate $(OUTPUT_PATH)/code/dataset_code_public.json $(DATASET_PATH)/public/AnsweredQuestions/dataset_code_public.json
 
 debug: install
 	@ uv run $(PY) -m pdb -m src
