@@ -1,5 +1,4 @@
 from src.errors import CLIError, SearchError
-from json import JSONDecodeError
 from src.cli import CLI
 import pytest
 
@@ -49,7 +48,7 @@ def test_invalid_search_dataset_save_directory() -> None:
 
 
 def test_empty_dataset_json() -> None:
-    with pytest.raises(JSONDecodeError):
+    with pytest.raises(SearchError):
         CLI().search_dataset("tests/dummy_empty.json", 5, "data")
 
 

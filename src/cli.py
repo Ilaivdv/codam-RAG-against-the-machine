@@ -33,7 +33,7 @@ class CLI:
             raise CLIError(("Expected integer value max_chunk_size "
                             f"between 0 and 2000, got: {max_chunk_size}"))
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
-        print(f"\033[32mSuccesfully indexed the corpus to {RAW_DATA_PATH +
+        print(f"\n\033[32mSuccesfully indexed the corpus to {RAW_DATA_PATH +
               PROCESSED_CHUNKS_PATH}")
 
     def search(self, query: str, k: int) -> list[MinimalSource]:
@@ -82,7 +82,7 @@ class CLI:
         Path(save_directory).mkdir(parents=True, exist_ok=True)
         with open(file_dest, "wb") as f:
             f.write(search_result.model_dump_json(indent=2).encode())
-        print(f"\033[32mSuccesfully written search results to {file_dest}")
+        print(f"\n\033[32mSuccesfully written search results to {file_dest}")
 
     def answer(self, query: str, k: int) -> str:
         """ Answer a single query using the retrieved context. """
@@ -142,7 +142,7 @@ class CLI:
         Path(save_directory).mkdir(parents=True, exist_ok=True)
         with open(file_dest, "wb") as f:
             f.write(results_and_answers.model_dump_json(indent=2).encode())
-        print(f"\033[32mSuccesfully wrote all generated answers under {
+        print(f"\n\033[32mSuccesfully wrote all generated answers under {
               save_directory}")
 
     def evaluate(

@@ -30,7 +30,7 @@ def create_chunks(path: Path, max_chunk_size: int) -> None:
         raise IndexError((f"'{path}' doesn't exist.\n"
                           "Possible fixes: run the program from "
                           "the repository root or run make install "
-                          "to extract the default corpus"))
+                          "to ingest the default corpus"))
 
     chunks: bytes = _chunk_file_list([
         (list(path.rglob("*.py")),
