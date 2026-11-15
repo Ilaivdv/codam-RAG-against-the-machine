@@ -10,9 +10,12 @@ MYPYFLAGS = --warn-return-any \
 	--disallow-subclassing-any
 
 VLLM_REPO = vllm-0.10.1.zip
+DATASET_PATH = datasets_public
 
 run: install
 	@ uv run --quiet $(PY) -m src index 2000
+	@ uv run --quiet $(PY) -m src search_dataset $(DATASET_PATH)/public/UnansweredQuestions/dataset_code_public.json 5 data/output/data_sets/code/
+	@ uv run --quiet $(PY) -m src search_dataset $(DATASET_PATH)/public/UnansweredQuestions/dataset_docs_public.json 5 data/output/data_sets/docs/
 
 debug: install
 	@ uv run $(PY) -m pdb -m src
@@ -21,6 +24,7 @@ install:
 	@ uv sync --link-mode=copy
 	@ mkdir -p data/raw/
 	@ unzip -u $(VLLM_REPO) -d data/raw/
+	@ unzip -u $(DATASET_PATH).zip
 
 lint:
 	-@ $(FLAKE8)
