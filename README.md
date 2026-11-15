@@ -62,15 +62,56 @@ uv run -m src evaluate data/output/UnansweredQuestions/dataset_code_public.json 
 uv run -m src answer_dataset data/output/UnansweredQuestions/dataset_docs_public.json data/output/AnsweredQuestions
 ```
 ## System Architecture
+The pipeline is made with modularity in mind keeping every command seperate, this is what the pipeline looks like:
+
+`ingest/index → search the dataset → evaluate recall -> answer the dataset`
 
 ## Chunking Strategy
+[langchain_text_splitters](https://reference.langchain.com/python/langchain-text-splitters/langchain_text_splitters) was used for chunking the corpus.
+Each .py, .md and .txt file is split into chunks using the `RecursiveCharacterTextSplitter` class and saved into a JSON file holding:
+- A chunks file path
+- The content that it holds
+- The first and last character index of the chunk in the file
+- It's last modified time used for caching
 
 ## Retrieval Method
+[bm25s](https://github.com/xhluca/bm25s) was used for lexical retrieval to find which documents match a user's query best.
+It was considered to use a term frequency inverse document length (TF-IDF) implementation first, but best-match 25 (BM25) improves upon it by adding term frequency saturation and document length normalization.
 
 ## Performance Analysis
+Evaluating the recall can be done using the modules `evaluate` command.
+Recalls meet the subjects requirements, 
+being a minimum 80% for document retrieval and 50% for code retrieval for recall@5.
+
+|Docs     |Recall  |
+|---------|--------|
+|Recall@1 |64.0%   |
+|Recall@3 |79.0%   |
+|Recall@5 |88.0%   |
+|Recall@10|91.0%   |
+|---------|--------|
+|Code     |        |
+|---------|--------|
+|Recall@1 |33.3%   |
+|Recall@3 |49.5%   |
+|Recall@5 |58.6%   |
+|Recall@10|60.6%   |
+
 
 ## Design Decisions
+- This module was made with modularity in mind, every command is reusable and contained seperately in `src/`
+- Unit tests were added for easy repetitive tests in case of breaking changes
+- The cpu only version of torch was used to shrink installation size and to accomodate CODAM's computers
 
 ## Challenges Faced
+- Keeping the module simple and not over complicating tasks
+- Making every command contained and seperated from one another
+- Error handling of all the required path arguments
+
+The biggest struggles faced were complying with the very poorly written subject and 
+using the required `pydantic` models which were not structured well and they felt extremely messy to work with at times.
 
 ## Resources
+- [About TF-IDF compared to BM-25](https://kmwllc.com/index.php/2020/03/20/understanding-tf-idf-and-bm-25/)
+- [RAG implementation](https://www.youtube.com/watch?v=pvCabUerwss)
+- [Crash course by KodeKloud](https://www.youtube.com/watch?v=swvzKSOEluc)
