@@ -115,7 +115,7 @@ class CLI:
         except ValidationError:
             raise CLIError(
                     f"Got invalid student_search_results_path: {
-                    student_search_results_path}")
+                        student_search_results_path}")
 
         answers: list[MinimalAnswer] = []
         for res in search_results.search_results:
