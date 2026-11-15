@@ -11,7 +11,7 @@ MYPYFLAGS = --warn-return-any \
 
 VLLM_REPO = vllm-0.10.1.zip
 DATASET_PATH = datasets_public
-OUTPUT_PATH = data/output/data_sets
+OUTPUT_PATH = data/output/search_results
 
 run: install
 	@ uv run --quiet $(PY) -m src index 2000
@@ -48,7 +48,7 @@ clean:
 	-find . -name "*.egg-info*" -exec rm -rf {} +
 
 fclean: clean
-	-rm -rf data/* .venv/
+	-rm -rf data/* .venv/ $(DATASET_PATH)
 
 test: install
 	@ uv run $(PY) -m pytest -v tests
