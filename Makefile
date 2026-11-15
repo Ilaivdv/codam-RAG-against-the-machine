@@ -10,6 +10,7 @@ MYPYFLAGS = --warn-return-any \
 	--disallow-subclassing-any
 
 VLLM_REPO = vllm-0.10.1.zip
+DATASET = datasets_public.zip
 
 run: install
 	@ uv run --quiet $(PY) -m src index 2000
@@ -21,6 +22,7 @@ install:
 	@ uv sync --link-mode=copy
 	@ mkdir -p data/raw/
 	@ unzip -u $(VLLM_REPO) -d data/raw/
+	@ unzip -u $(DATASET)
 
 lint:
 	-@ $(FLAKE8)
