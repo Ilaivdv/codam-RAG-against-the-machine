@@ -82,6 +82,7 @@ class CLI:
         Path(save_directory).mkdir(parents=True, exist_ok=True)
         with open(file_dest, "wb") as f:
             f.write(search_result.model_dump_json(indent=2).encode())
+        print(f"\033[32mSuccesfully written search results to {file_dest}")
 
     def answer(self, query: str, k: int) -> str:
         """ Answer a single query using the retrieved context. """
