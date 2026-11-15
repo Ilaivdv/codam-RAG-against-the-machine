@@ -15,7 +15,7 @@ run: install
 	@ uv run --quiet $(PY) -m src index 2000
 
 debug: install
-	@ uv run $(PY) -m pdb -m src -v
+	@ uv run $(PY) -m pdb -m src
 
 install:
 	@ uv sync --link-mode=copy
