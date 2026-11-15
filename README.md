@@ -82,7 +82,7 @@ Evaluating the recall can be done using the modules `evaluate` command.
 Recalls meet the subjects requirements, 
 being a minimum 80% for document retrieval and 50% for code retrieval for recall@5.
 
-|Docs     |Recall  |Code    |
+|Recall   |Docs    |Code    |
 |---------|--------|--------|
 |Recall@1 |64.0%   |33.3%   |
 |Recall@3 |79.0%   |49.5%   |
