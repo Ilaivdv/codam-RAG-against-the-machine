@@ -1,6 +1,7 @@
 class RagError(Exception):
     """ Custom exception class for verbosity. """
-    pass
+    def __init__(self, msg: str) -> None:
+        super().__init__(f"\033[31m\x1b[1mERROR: \033[39m\x1b[0m{msg}")
 
 
 class CLIError(RagError):

@@ -94,11 +94,10 @@ def retrieve_sources_from_dataset(
     query_list: list[AnsweredQuestion | UnansweredQuestion] | None = []
     query_retrievals: list[MinimalSearchResults] = []
     with open(dataset_path, "rb") as f:
-        json_dict: dict[str, Any] = json.load(f)
         try:
-            query_list = RagDataset.model_validate(json_dict).rag_questions
+            query_list = RagDataset.model_validate_json(f.read()).rag_questions
         except ValidationError:
-            raise SearchError(("Expected JSON list 'rag_questions' "
+            raise SearchError(("Invalid/missing JSON list 'rag_questions' "
                                f"at file path: {dataset_path}"))
         for query in tqdm(query_list, desc="Creating MinimalSearchResults"):
             query_retrievals.append(MinimalSearchResults(
