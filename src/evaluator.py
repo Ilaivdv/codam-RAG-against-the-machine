@@ -68,7 +68,7 @@ def display_recall(student_sources: Path, reference_sources: Path) -> None:
                     recall_at_k[k] = (
                             valid_recall_len / len(references_by_id) * 100)
 
-        print("\n\033[31m\x1b[1m===RECALL@K METRICS===\033[39m\n")
+        print("\n\033[31m\x1b[1m- RECALL@K METRICS -\033[39m\n")
         print((
             f"\033[34mFound {len(
                 [i for i in sources_by_id.keys()
