@@ -1,5 +1,5 @@
-from json import JSONDecodeError
 from src.errors import CLIError, SearchError
+from json import JSONDecodeError
 from src.cli import CLI
 import pytest
 
@@ -14,6 +14,11 @@ def test_search_negative_k() -> None:
         CLI().search("hi", -5)
 
 
+def test_search_non_int_k() -> None:
+    with pytest.raises(CLIError):
+        CLI().search("hi", "a")
+
+
 def test_invalid_search_dataset_path() -> None:
     with pytest.raises(CLIError):
         CLI().search_dataset("hi", 5, "data/output")
@@ -24,7 +29,12 @@ def test_invalid_search_dataset_path() -> None:
 
 def test_search_dataset_negative_k() -> None:
     with pytest.raises(CLIError):
-        CLI().search_dataset("tests/dummy.json", -5, "data/")
+        CLI().search_dataset("tests/dummy_query.json", -5, "data/")
+
+
+def test_search_dataset_non_int_k() -> None:
+    with pytest.raises(CLIError):
+        CLI().search_dataset("tests/dummy.json", "hi", "data/")
 
 
 def test_invalid_search_dataset_save_directory() -> None:
@@ -33,6 +43,10 @@ def test_invalid_search_dataset_save_directory() -> None:
 
     with pytest.raises(CLIError):
         CLI().search_dataset("tests/dummy.json", 5, "~/fake_directory")
+
+
+    with pytest.raises(CLIError):
+        CLI().search_dataset("tests/dummy.json", 5, "../fake_directory")
 
 
 def test_empty_dataset_json() -> None:
