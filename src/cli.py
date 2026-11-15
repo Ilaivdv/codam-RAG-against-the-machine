@@ -143,6 +143,8 @@ class CLI:
             student_search_results_path: str,
             dataset_path: str) -> None:
         """ Reports a recall@k against a ground-truth dataset. """
+        student_search_results_path = str(student_search_results_path)
+        dataset_path = str(dataset_path)
         self._validate_json_path(student_search_results_path,
                                  "student_search_results_path")
         self._validate_json_path(dataset_path, "dataset_path")
