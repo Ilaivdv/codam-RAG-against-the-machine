@@ -52,21 +52,28 @@ def display_recall(student_sources: Path, reference_sources: Path) -> None:
                 }
 
         recall_at_k: dict[int, float] = {}
-        for k in tqdm(_RECALL_K_LIST, desc="Calculating recall..."):
+        for k in tqdm(_RECALL_K_LIST,
+                      desc="Calculating recall...", leave=False):
             valid_recall_len = 0
-            for uuid, s in sources_by_id.items():
+            for uuid, s in sources_by_id.copy().items():
                 try:
                     valid_recall_len += _is_valid_source(
                             s[:k], references_by_id[uuid][0])
-                except Exception as e:
-                    print(e)
+                except Exception:
+                    tqdm.write(
+                            ("\033[33mWARNING: \033[39mCouldn't find query id "
+                             f"in dataset: {uuid}, skipping..."))
+                    sources_by_id.pop(uuid)
                 else:
                     recall_at_k[k] = (
                             valid_recall_len / len(references_by_id) * 100)
 
         print("\n\033[31m\x1b[1m===RECALL@K METRICS===\033[39m\n")
         print((
-            f"\033[34mFound {len(sources_by_id)}/{len(references_by_id)} "
+            f"\033[34mFound {len(
+                [i for i in sources_by_id.keys()
+                    if i in references_by_id.keys()]
+            )}/{len(references_by_id)} "
             "queries\033[39m\n"
                ))
         for k, v in recall_at_k.items():
