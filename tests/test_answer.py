@@ -15,7 +15,7 @@ def test_answer_negative_k() -> None:
 
 def test_answer_non_int_k() -> None:
     with pytest.raises(CLIError):
-        CLI().search("hi", "boo")
+        CLI().search("hi", "boo")  # type: ignore
 
 
 def test_invalid_answer_dataset_path() -> None:

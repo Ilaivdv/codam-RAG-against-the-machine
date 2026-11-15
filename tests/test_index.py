@@ -15,4 +15,4 @@ def test_index_chunk_size_too_large() -> None:
 
 def test_index_non_int_chunk_size() -> None:
     with pytest.raises(CLIError):
-        CLI().index("a")
+        CLI().index("a")  # type: ignore

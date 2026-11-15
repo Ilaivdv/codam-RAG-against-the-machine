@@ -16,7 +16,7 @@ def test_search_negative_k() -> None:
 
 def test_search_non_int_k() -> None:
     with pytest.raises(CLIError):
-        CLI().search("hi", "a")
+        CLI().search("hi", "a")  # type: ignore
 
 
 def test_invalid_search_dataset_path() -> None:
@@ -34,7 +34,7 @@ def test_search_dataset_negative_k() -> None:
 
 def test_search_dataset_non_int_k() -> None:
     with pytest.raises(CLIError):
-        CLI().search_dataset("tests/dummy.json", "hi", "data/")
+        CLI().search_dataset("tests/dummy.json", "hi", "data/")  # type: ignore
 
 
 def test_invalid_search_dataset_save_directory() -> None:
@@ -43,7 +43,6 @@ def test_invalid_search_dataset_save_directory() -> None:
 
     with pytest.raises(CLIError):
         CLI().search_dataset("tests/dummy.json", 5, "~/fake_directory")
-
 
     with pytest.raises(CLIError):
         CLI().search_dataset("tests/dummy.json", 5, "../fake_directory")
