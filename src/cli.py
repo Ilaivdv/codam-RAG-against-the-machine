@@ -31,7 +31,8 @@ class CLI:
         if not isinstance(max_chunk_size, int) or not \
                 0 < max_chunk_size <= 2000:
             raise CLIError(("Expected integer value max_chunk_size "
-                            f"between 0 and 2000, got: {max_chunk_size}"))
+                            f"between 1 and 2000, got: {max_chunk_size}"))
+
         create_chunks(Path(RAW_DATA_PATH), max_chunk_size)
         print(f"\n\033[32mSuccesfully indexed the corpus to {RAW_DATA_PATH +
               PROCESSED_CHUNKS_PATH}")
@@ -39,9 +40,7 @@ class CLI:
     def search(self, query: str, k: int) -> list[MinimalSource]:
         """ Return the top-k sources for a single query. """
 
-        if not isinstance(k, int) or k <= 0:
-            raise CLIError(("Expected an integer greater "
-                            f"than 0 for argument k, got: {k}"))
+        self._validate_k(k)
         if not query:
             raise CLIError("Got an empty query")
         res: list[MinimalSource] = retrieve_sources_from_query(
@@ -59,16 +58,11 @@ class CLI:
         StudentSearchResults JSON file.
         """
 
-        if not os.path.isfile(dataset_path) or not \
-                dataset_path.endswith(".json"):
-            raise CLIError(("Expected an existing JSON file "
-                            f"for dataset_path, got: {dataset_path}"))
-        if not isinstance(k, int) or k <= 0:
-            raise CLIError(("Expected an integer greater "
-                            f"than 0 for argument k, got: {k}"))
-        if save_directory.startswith(("/", "~", "../")):
-            raise CLIError(("Argument save_directory out of scope, "
-                            f"got: {save_directory}"))
+        dataset_path = str(dataset_path)
+        save_directory = str(save_directory)
+        self._validate_json_path(dataset_path, "dataset_path")
+        self._validate_k(k)
+        self._validate_save_directory(save_directory)
 
         search_result = StudentSearchResults(
                 search_results=retrieve_sources_from_dataset(
@@ -87,17 +81,17 @@ class CLI:
     def answer(self, query: str, k: int) -> str:
         """ Answer a single query using the retrieved context. """
 
-        if not isinstance(k, int) or k <= 0:
-            raise CLIError(("Expected an integer greater "
-                            f"than 0 for argument k, got: {k}"))
         if not query:
             raise CLIError("Got an empty query")
-        global _llm
+        self._validate_k(k)
 
         res: list[MinimalSource] = retrieve_sources_from_query(
                 query, k, init_retriever())
+
+        global _llm
         if _llm is None:
             _llm = LLM("Qwen/Qwen3-0.6B")
+
         return _llm.answer_prompt(query, res)
 
     def answer_dataset(
@@ -109,29 +103,28 @@ class CLI:
         StudentSearchResultsAndAnswer JSON file.
         """
 
-        if not os.path.isfile(student_search_results_path) or not \
-                student_search_results_path.endswith(".json"):
-            raise CLIError(("Expected an existing JSON file "
-                            "for student_search_results_path, "
-                            f"got: {student_search_results_path}"))
-        if save_directory.startswith(("/", "~", "../")):
-            raise CLIError(("Argument save_directory out of scope, "
-                            f"got: {save_directory}"))
+        student_search_results_path = str(student_search_results_path)
+        save_directory = str(save_directory)
+        self._validate_json_path(student_search_results_path,
+                                 "student_search_results_path")
+        self._validate_save_directory(save_directory)
 
         try:
             search_results = StudentSearchResults.model_validate_json(
                     Path(student_search_results_path).read_bytes())
-        except ValidationError as e:
-            raise CLIError(f"Got invalid student_search_results_path: {e}")
+        except ValidationError:
+            raise CLIError(
+                    f"Got invalid student_search_results_path: {
+                    student_search_results_path}")
+
         answers: list[MinimalAnswer] = []
         for res in search_results.search_results:
             answers.append(MinimalAnswer(
                 question_id=res.question_id,
                 question=res.question,
                 retrieved_sources=res.retrieved_sources,
-                answer=self.answer(
-                    res.question, search_results.k
-                )))
+                answer=self.answer(res.question, search_results.k)
+                ))
 
         results_and_answers = StudentSearchResultsAndAnswer(
                 search_results=answers,
@@ -150,14 +143,29 @@ class CLI:
             student_search_results_path: str,
             dataset_path: str) -> None:
         """ Reports a recall@k against a ground-truth dataset. """
-        if not os.path.isfile(student_search_results_path) or not \
-                student_search_results_path.endswith(".json"):
-            raise CLIError(("Expected an existing JSON file "
-                            "for student_search_results_path, "
-                            f"got: {student_search_results_path}"))
-        if not os.path.isfile(dataset_path) or not \
-                dataset_path.endswith(".json"):
-            raise CLIError(("Expected an existing JSON file "
-                            "for dataset_path, "
-                            f"got: {dataset_path}"))
+        self._validate_json_path(dataset_path, "student_search_results_path")
+        self._validate_json_path(dataset_path, "dataset_path")
+
         display_recall(Path(student_search_results_path), Path(dataset_path))
+
+    def _validate_k(self, k: int) -> None:
+        """ Validates k value and raises `CLIError` on invalid k or k < 1. """
+
+        if not isinstance(k, int) or k <= 0:
+            raise CLIError(("Expected an integer greater "
+                            f"than 0 for argument k, got: {k}"))
+
+    def _validate_json_path(self, path: str, var_name: str) -> None:
+        """ Takes `path` and raises `CLIError` on invalid json file path. """
+
+        if not os.path.isfile(path) or not \
+                path.endswith(".json"):
+            raise CLIError(("Expected an existing JSON file "
+                            f"path for {var_name}, got: {path}"))
+
+    def _validate_save_directory(self, save_directory: str) -> None:
+        """ Takes `save_directory` and raises `CLIError` on invalid path. """
+
+        if save_directory.startswith(("/", "~", "../")):
+            raise CLIError(("Argument save_directory out of scope, "
+                            f"got: {save_directory}"))
