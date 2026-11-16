@@ -8,6 +8,7 @@ from src.errors import RagError
 from json import JSONDecodeError
 from .cli import CLI
 import fire
+import sys
 
 
 def main() -> None:
@@ -16,8 +17,9 @@ def main() -> None:
         with open("src/logo.txt") as f:
             print("\033[31m" + f.read() + "\033[39m")
         fire.Fire(CLI)
-    except (RagError, JSONDecodeError) as e:
-        print(e)
+    except (RagError, JSONDecodeError,
+            FileNotFoundError, PermissionError) as e:
+        print(e, file=sys.stderr)
 
 
 if __name__ == "__main__":
